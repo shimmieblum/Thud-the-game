@@ -12,7 +12,7 @@ from .userInterfaces.userInterface import TerminalUI, QuietUI
 
 
 def main():
-    logging.basicConfig(filename=r"C:\Users\User\Desktop\proj_info.txt")
+    # logging.basicConfig(filename=r"C:\Users\User\Desktop\proj_info.txt")
 
     ''' read options from command line to instantiate match '''
     from optparse import OptionParser
