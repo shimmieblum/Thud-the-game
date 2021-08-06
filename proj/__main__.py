@@ -115,7 +115,7 @@ def load_agent(agentClassName: str):
     # s is name of the class
     prefix = 'proj.agents'
     # path_prefix = 'C:\Users\User\Desktop\proj_folder\proj\agents'
-    for filename in os.listdir(r'C:\Users\User\Desktop\proj_folder\proj\agents'):
+    for filename in os.listdir(r'proj\agents'):
         # print(filename)
         mod = f'{prefix}.{filename}'
         try:
