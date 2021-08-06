@@ -29,7 +29,7 @@ class HeuristicAgent(ThudAgentTemplate):
     This will be incorporated in the heuristic of each piece type.
     
     '''    
-    
+    'asdf'
     def __init__(self, name, agentClassName) -> None:
         
         super().__init__(name, agentClassName)
