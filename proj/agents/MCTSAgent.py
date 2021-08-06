@@ -1,3 +1,5 @@
+from abc import abstractmethod
+from asyncio.subprocess import PIPE
 import math
 import time
 
@@ -143,26 +145,25 @@ class MCTSAgent(ThudAgentTemplate):
     def __init__(self, name, agentClassName) -> None:
         super().__init__(name, agentClassName)
         self.MAX_TIME = 30
+        
+    
+    def simulate(self, node: MCTSNode) -> 'tuple[float, float]':
+        start = time.time()
+        sim_state = node.state.deepcopy()
+        while not sim_state.game_over():
+            actions = sim_state.valid_actions()
+            # random.shuffle(actions)
+            # action = max(actions, key=lambda action: len(action.capture))
+            action = random.choice(actions)
+            sim_state.act_on_state(action)
+        results = sim_state.dwarf_score(), sim_state.troll_score()
+        print(time.time() - start)
+        return results
 
     def act(self, state: GameState, game_number: int, wins: dict) -> Action:
-        def simulate(node: MCTSNode) -> 'tuple[float, float]':
-            start = time.time()
-
-            sim_state = node.state.deepcopy()
-            while not sim_state.game_over():
-                actions = sim_state.valid_actions()
-                # random.shuffle(actions)
-                # action = max(actions, key=lambda action: len(action.capture))
-                action = random.choice(actions)
-                sim_state.act_on_state(action)
-            results = sim_state.dwarf_score(), sim_state.troll_score()
-
-            print(time.time() - start)
-            return results
-
         # if this is one of the first turns, create a new tree. otherwise reroot the old one based on the new state. 
         if state.turn_number < 3:
-            self.tree = MCTSTree(state, simulate, simulations_per_turn=math.inf, max_time=self.MAX_TIME)
+            self.tree = MCTSTree(state, self.simulate, simulations_per_turn=math.inf, max_time=self.MAX_TIME)
         else:
             self.tree.reroot_from_state(state)
         assert state == self.tree.root.state
@@ -171,3 +172,22 @@ class MCTSAgent(ThudAgentTemplate):
         # reroot with the chosen state so the root matches the next players state
         self.tree.reroot_from_state(child.state)
         return child.action
+    
+    
+class DirtyMCTSAgent(MCTSAgent):
+    def __init__(self, name, agentClassName) -> None:
+        super().__init__(name, agentClassName)
+        
+    def simulate(self, node: MCTSNode) -> 'tuple[float, float]':
+        start = time.time()
+        sim_state = node.state.deepcopy()
+        while not sim_state.game_over():
+            if sim_state.turn == Piece.DWARF
+            # random.shuffle(actions)
+            # action = max(actions, key=lambda action: len(action.capture))
+            action = random.choice(actions)
+            sim_state.act_on_state(action)
+        results = sim_state.dwarf_score(), sim_state.troll_score()
+        print(time.time() - start)
+        return results    
+    
