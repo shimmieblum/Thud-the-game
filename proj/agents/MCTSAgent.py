@@ -154,10 +154,11 @@ class MCTSAgent(ThudAgentTemplate):
         super().__init__(name, agentClassName)
         self.MAX_TIME = 30
         self.total_sim_time = 0
+        self.depth_reached = 0
     
     
     def simulate(self, node: MCTSNode) -> 'tuple[float, float]':
-        print(f'node depth = {node.d}')
+        self.depth_reached = max(self.depth_reached, node.d)
         start = time.time()
         sim_state = node.get_state().deepcopy()
         while not sim_state.game_over():
@@ -171,10 +172,12 @@ class MCTSAgent(ThudAgentTemplate):
 
     def act(self, state: GameState, game_number: int, wins: dict) -> Action:
         self.total_sim_time = 0
+        
         self.tree = MCTSTree(state, self.simulate, simulations_per_turn=math.inf, max_time=self.MAX_TIME)
         self.tree.run_simulations()
         child = self.tree.chose_best_node()
         print(f'total simulation time = {self.total_sim_time}')
+        print(f'best depth reached = {self.depth_reached}')
         # # reroot with the chosen state so the root matches the next players state
         # self.tree.reroot_from_state(child.state)
         return child.action
