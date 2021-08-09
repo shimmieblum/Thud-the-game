@@ -56,7 +56,7 @@ class TestGameState(unittest.TestCase):
         ]
         
         
-        all_valid_actions = self.state.get_dwarf_actions()
+        all_valid_actions = self.state.get_all_dwarf_actions()
         
         for action, descr in valid_actions: self.assertIn(action,all_valid_actions,descr)
         
@@ -78,7 +78,7 @@ class TestGameState(unittest.TestCase):
             Action((1,4), (1,3), set(), MoveType.DWARF_MOVE)
         ]
         
-        all_valid_actions = self.state.get_dwarf_actions()
+        all_valid_actions = self.state.get_all_dwarf_actions()
         
         for action in invalid_actions: self.assertNotIn(action,all_valid_actions, action)
     
@@ -118,7 +118,7 @@ class TestGameState(unittest.TestCase):
     
     def test_all_actions_valid(self):
         '''check capture lists and action types match and correct action types for given pieces'''
-        dwarf_actions = self.state.get_dwarf_actions()
+        dwarf_actions = self.state.get_all_dwarf_actions()
         troll_actions = self.state.get_troll_actions()
         for action in dwarf_actions:
             valid = (action.movetype not in (MoveType.TROLL_MOVE, MoveType.TROLL_SHOVE) and 
@@ -181,7 +181,7 @@ class TestGameState(unittest.TestCase):
         
         for (sx,sy), (tx,ty) in moves: self.state.grid.move_piece(sx,sy,tx,ty)
         
-        all_valid = self.state.get_dwarf_actions()
+        all_valid = self.state.get_all_dwarf_actions()
         
         for valid in valid_actions: self.assertIn(valid, all_valid)
         for invalid in invalid_actions: self.assertNotIn(invalid, all_valid)

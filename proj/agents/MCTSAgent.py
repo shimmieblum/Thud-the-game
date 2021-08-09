@@ -1,7 +1,10 @@
 from abc import abstractmethod
 from asyncio.subprocess import PIPE
 import math
+from optparse import OptionParser
 import time
+
+from numpy.lib.npyio import save
 
 from proj.agents.template import ThudAgentTemplate
 from proj.model.enums import Piece
@@ -48,6 +51,7 @@ class MCTSNode:
         return len(self.children) == 0
 
     def back_propogate_results(self, troll_score, dwarf_score):
+        
         '''
         increment visits to this node and increase scores by the new scores found
         '''
@@ -75,6 +79,8 @@ class MCTSTree:
         self.simulate = simulation_fn
         self.max_time = max_time
         self.depth_offset = 0
+        
+        
 
     def reroot(self, actions):
         ''''
@@ -145,12 +151,30 @@ import random
 class MCTSAgent(ThudAgentTemplate):
     def __init__(self, name, agentClassName) -> None:
         super().__init__(name, agentClassName)
-        self.MAX_TIME = 30
+        # self.options()
+        self.MAX_TIME = 10
         self.simulation_time = 0
         self.depth_reached = 0
     
+    # def options(self):
+    #     print('''you've started the MCTSAgent. please set parameters. for info type -h or --help''')
+    #     usage_string = '''
+    #     USAGE:      <options>
+    #     '''
+    #     parser = OptionParser(usage_string)
+    #     parser.add_option('-t', '--maxTime', dest='maxTime', type=int,
+    #                       help='how long can agent take per turn', metavar='seconds', default=10)
+    #     parser.add_option('-d', '--maxDepth', dest='maxDepth', type=int,
+    #                       help='to what depth shoud the model search', default=None)
+    #     options, other = parser.parse_args()
+    #     if len(other) != 0:
+    #         raise Exception(f'''CLI can't understand {str(other)}''')
+    
+    #     self.MAX_TIME = options.maxTime
+    #     self.MAX_DEPTH  = options.maxDepth
+    
     def simulate(self, node: MCTSNode) -> 'tuple[float, float]':
-        self.depth_reached = max(self.depth_reached, node.d-self.tree.depth_offset)
+        self.update_depth(node)
         start = time.time()
         sim_state = node.state.deepcopy()
         while not sim_state.game_over():
@@ -162,6 +186,10 @@ class MCTSAgent(ThudAgentTemplate):
         results = sim_state.dwarf_score(), sim_state.troll_score()
         self.simulation_time += time.time() - start
         return results
+
+    def update_depth(self, node):
+        self.depth_reached = max(self.depth_reached, node.d-self.tree.depth_offset)
+
 
     def act(self, state: GameState, game_number: int, wins: dict) -> Action:
         self.simulation_time = 0
@@ -180,20 +208,24 @@ class MCTSAgent(ThudAgentTemplate):
         return child.action
     
     
-# class DirtyMCTSAgent(MCTSAgent):
-#     def __init__(self, name, agentClassName) -> None:
-#         super().__init__(name, agentClassName)
+class UnfairMCTSAgent(MCTSAgent):
+    def __init__(self, name, agentClassName) -> None:
+        super().__init__(name, agentClassName)
         
-#     def simulate(self, node: MCTSNode) -> 'tuple[float, float]':
-#         start = time.time()
-#         sim_state = node.state.deepcopy()
-#         while not sim_state.game_over():
-#             if sim_state.turn == Piece.DWARF
-#             # random.shuffle(actions)
-#             # action = max(actions, key=lambda action: len(action.capture))
-#             action = random.choice(actions)
-#             sim_state.act_on_state(action)
-#         results = sim_state.dwarf_score(), sim_state.troll_score()
-#         print(time.time() - start)
-#         return results    
+    def simulate(self, node: MCTSNode) -> 'tuple[float, float]':
+        self.update_depth(node)
+        start = time.time()
+        sim_state = node.state.deepcopy()
+        start = time.time()
+        while not sim_state.game_over():
+            actions = []
+            while actions == []:
+                x,y = random.choice(sim_state.dwarves() if sim_state.turn == Piece.DWARF else sim_state.trolls())
+                actions = sim_state.get_actions_from_loc(x,y)
+            action = random.choice(actions)
+            sim_state.act_on_state(action)
+        print(time.time()-start)
+        results = sim_state.dwarf_score(), sim_state.troll_score()
+        self.simulation_time += time.time() - start
+        return results    
     

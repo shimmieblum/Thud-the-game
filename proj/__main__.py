@@ -41,6 +41,7 @@ def main():
     options, other = parser.parse_args()
     if len(other) != 0:
         raise Exception(f'''CLI can't understand {str(other)}''')
+    
     elif options.list_agents:
         list_agents()
         return

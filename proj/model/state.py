@@ -56,11 +56,17 @@ class GameState:
         return self.captured[piece]
 
     def valid_actions(self) -> 'tuple(tuple, tuple, set, MoveType)':
-        ''' each action is a quadruple: 
-        ((start location), (end location), {capture locations}, move_type)
-        '''
-        return self.get_dwarf_actions() if self.turn == Piece.DWARF else self.get_troll_actions()
-
+        """
+        Return all valid actions for this state.
+        - Action = ((start location), (end location), {capture locations}, move_type)
+        
+        """
+        ret_list = []
+        for x,y in self.dwarves() if self.turn is Piece.DWARF else self.trolls():
+            ret_list.extend(self.get_actions_from_loc(x,y))
+        return ret_list
+    
+    
     def next_move(self):
         ''' increment turn number and change turn '''
         self.turn_number += 1
@@ -93,11 +99,12 @@ class GameState:
         next_state.prev_action = action
         return next_state
 
-    def dwarf_moves(self, x, y) -> 'list[Action]':
+    def dwarf_moves_from_location(self, x, y) -> 'list[Action]':
         ''' 
-        dwarf 'normal move'
-        dwarf 'normal moves' in straight lines when unobstructed
-        dwarf cant capture in 'normal move', only hurl
+        - dwarf 'normal move': a straight lines when unobstructed.
+        - dwarf can't capture in 'normal move', only in  a hurl
+        
+        @return: a list of 'move' actions from location (x,y)
         '''
         return_list = []
         increments = [(x, y) for x in [1, 0, -1] for y in [1, 0, -1] if (x, y) != (0, 0)]
@@ -110,12 +117,13 @@ class GameState:
                 piece = self.grid.get_piece(nx, ny)
         return return_list
 
-    def dwarf_hurls(self, x, y) -> 'list[Action]':
+    def dwarf_hurls_from_location(self, x, y) -> 'list[Action]':
         '''
-        dwarf 'hurls'
-        'hurl' = the front dwarf of a line of dwarves can be hurled the length of the line behind it. 
-        a 'hurl can only be completed if the dwarf captures a troll by landing on it
-        the 'hurled' dwarf is included in the line
+        - dwarf 'hurls': the front dwarf of a line of dwarves can be hurled the length of the line behind it. 
+        - a 'hurl can only be completed if the dwarf captures a troll by landing on it
+        - the 'hurled' dwarf is included in the line
+        
+        @return: the list of 'hurl actions from location (x,y)
         '''
         return_list = []
         increments = [(x, y) for x in [1, 0, -1] for y in [1, 0, -1] if (x, y) != (0, 0)]
@@ -131,14 +139,6 @@ class GameState:
                     break
                 elif piece != Piece.EMPTY:
                     break
-        return return_list
-
-    def get_dwarf_actions(self) -> 'list[Action]':
-        start_locations = self.grid.get_piece_list(Piece.DWARF)
-        return_list = []
-        for x, y in start_locations:
-            return_list.extend(self.dwarf_moves(x, y))
-            return_list.extend(self.dwarf_hurls(x, y))
         return return_list
 
     def get_line_length(self, x, y, ix, iy, piece_type):
@@ -158,7 +158,7 @@ class GameState:
     def trolls(self):
         return self.grid.get_piece_list(Piece.TROLL)
 
-    def troll_moves(self, x, y) -> 'list[Action]':
+    def troll_moves_from_location(self, x, y) -> 'list[Action]':
         ''' 
         get troll 'normal moves' - ie one step in any direction.
         the troll can capture one dwarf on its move if the dwarf is adjacent to the start location 
@@ -178,7 +178,7 @@ class GameState:
                     return_list.append(Action((x, y), (nx, ny), {capture}, MoveType.TROLL_MOVE))
         return return_list
 
-    def troll_hurls(self, x, y) -> 'list[Action]':
+    def troll_hurls_from_location(self, x, y) -> 'list[Action]':
         '''
         get the trolls 'shove moves'
         to shove, the trolls require a line of trolls behind
@@ -212,17 +212,6 @@ class GameState:
     def troll_score(self) -> int:
         return len(self.trolls()) * 4
 
-    def get_troll_actions(self) -> 'list[Action]':
-        starts = self.grid.get_piece_list(Piece.TROLL)
-        incremenents = [(x, y) for x in [-1, 0, 1] for y in [-1, 0, 1] if (x, y) != (0, 0)]
-        return_list = []
-
-        for x, y in starts:
-            return_list.extend(self.troll_moves(x, y))
-            return_list.extend(self.troll_hurls(x, y))
-
-        return return_list
-
     def get_subsequent_states(self):
         # TODO yield new boards without creating new states or grids
         # TODO ie detach data structures from the logic
@@ -236,8 +225,8 @@ class GameState:
             full_list = self.dwarf_moves(x, y)
             full_list.extend(self.dwarf_hurls(x, y))
         else:
-            full_list = self.troll_moves(x, y)
-            full_list.extend(self.troll_hurls(x, y))
+            full_list = self.troll_moves_from_location(x, y)
+            full_list.extend(self.troll_hurls_from_location(x, y))
         return full_list
 
     def get_capture_sets(self, end_loc, movetype) -> 'list[set]':
@@ -296,3 +285,28 @@ class GameState:
                     self.captured == o.captured and
                     self.turn == o.turn and
                     self.turn_number == o.turn_number)
+
+    def get_actions_from_loc(self, x,y):
+        """ 
+        Get all actions from a given location
+        @param x
+        @param ym
+        """
+        if self.grid.get_piece(x,y) == Piece.DWARF:
+            return self.get_dwarf_actions_from_loc(x,y)
+        elif self.grid.get_piece(x,y) == Piece.TROLL:
+            return self.get_troll_actions_from_loc(x,y)
+        else: return []
+        
+    def get_dwarf_actions_from_loc(self, x, y):
+        return_list = self.dwarf_moves_from_location(x, y)
+        return_list.extend(self.dwarf_hurls_from_location(x, y))
+        return return_list
+    
+    
+    def get_troll_actions_from_loc(self, x,y):
+        return_list = self.troll_moves_from_location(x, y)
+        return_list.extend(self.troll_hurls_from_location(x, y))
+        return return_list
+    
+    
