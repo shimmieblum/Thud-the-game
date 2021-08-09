@@ -1,8 +1,5 @@
 
-
-
-from proj.model.grid import Grid
-from proj.RL import CNN
+import time
 from proj.model.state import GameState
 
 # state = GameState()
@@ -14,7 +11,13 @@ from proj.model.state import GameState
 # state.get_representation()
 
 
-CNN.run()
+state = GameState()
+starttime = time.time()
+for _ in range(10_000):
+    state.valid_actions()
+length = time.time()-starttime
+print(length)
+
 
 
 
