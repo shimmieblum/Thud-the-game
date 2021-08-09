@@ -183,20 +183,27 @@ class MCTSAgent(ThudAgentTemplate):
         return child.action
     
     
+
+
     
-class DirtyMCTSAgent(MCTSAgent):
+class UnfairMCTSAgent(MCTSAgent):
     def __init__(self, name, agentClassName) -> None:
         super().__init__(name, agentClassName)
         
     def simulate(self, node: MCTSNode) -> 'tuple[float, float]':
+        self.depth_reached = max(self.depth_reached, node.d)
+        
         start = time.time()
         sim_state = node.get_state().deepcopy()
+        start = time.time()
         while not sim_state.game_over():
-            actions = sim_state.valid_actions()
-            # if sim_state.turn == Piece.DWARF
-            # random.shuffle(actions)
+            actions = []
+            while actions == []:
+                x,y = random.choice(sim_state.dwarves() if sim_state.turn == Piece.DWARF else sim_state.trolls())
+                actions = sim_state.get_actions_from_loc(x,y)
             action = random.choice(actions)
             sim_state.act_on_state(action)
+        print(time.time()-start)
         results = sim_state.dwarf_score(), sim_state.troll_score()
-        print(time.time() - start)
-        return results  
+        self.simulation_time += time.time() - start
+        return results    
