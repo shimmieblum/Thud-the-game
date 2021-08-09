@@ -1,1 +1,1 @@
-MiniMaxAgentGUIAgentMCTSAgentRandomAgentMiniMaxABAgent
+MiniMaxAgentGUIAgentMCTSAgentRandomAgentMiniMaxABAgentBetterRandomAgent
