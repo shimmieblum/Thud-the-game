@@ -58,23 +58,25 @@ class MCTSNode:
         node.get_state()
         return node
         
-    def expand_node(self):
+    def expand_node(self) -> int:
         """
         Expand node with a new child for each possible action
+        @return: the number of new nodes added
         """
         state = self.get_state()
         if self.is_leaf():
             self.children = [MCTSNode(action=action, state=None, depth=self.d+1, parent=self)
                 for action in state.valid_actions()]
+        return len(self.children)
         
     def is_leaf(self):
         return len(self.children) == 0
 
-    def back_propogate_results(self, troll_score, dwarf_score):
+    def update_and_back_propogate(self, troll_score, dwarf_score):
         '''
         increment visits to this node and increase scores by the new scores found
         '''
-        self.N += 1
+        self.N +=1
         self.results[Piece.TROLL] += troll_score
         self.results[Piece.DWARF] += dwarf_score
         if self.parent: self.parent.back_propogate_results(troll_score, dwarf_score)
@@ -98,12 +100,13 @@ class MCTSTree:
         self.max_simulations = simulations_per_turn
         self.turn = state.turn
         self.max_time = max_time
+        self.size = 1
 
     def chose_best_node(self):
         """
         Select the best child from the root - used to select the final action to take
         """
-        return max(self.root.children, key=lambda x: x.value(self.turn))
+        return max(self.root.children, key=lambda x: x.N)
 
     def run_simulations(self):
         '''
@@ -115,14 +118,17 @@ class MCTSTree:
         while simulation_number < self.max_simulations and time.time() - start_time < self.max_time:
             # Allow the root to find the best child node 
             current_node = self.find_leaf(self.root)
+            # print(current_node.d)
+            print(current_node.N)
             # If this node has been rolled out before, expand, select a child at random and simulate on that
             if current_node.N > 0: 
-                current_node.expand_node()
+                self.size += current_node.expand_node()
                 current_node = current_node.select_random_child()
             dwarf_score, troll_score = self.simulate(current_node)
-            current_node.back_propogate_results(dwarf_score=dwarf_score, troll_score=troll_score)
+            current_node.update_and_back_propogate(dwarf_score=dwarf_score, troll_score=troll_score)
+            print(current_node.N)
             simulation_number +=1
-        print(simulation_number)
+        print(f'simulatiions run = {simulation_number}')
 
     def find_leaf(self, node: MCTSNode) -> MCTSNode:
         """
@@ -152,12 +158,13 @@ import random
 class MCTSAgent(ThudAgentTemplate):
     def __init__(self, name, agentClassName) -> None:
         super().__init__(name, agentClassName)
-        self.MAX_TIME = 30
-        self.total_sim_time = 0
+        self.MAX_TIME = 10
         self.depth_reached = 0
+        self.simulation_time = 0
     
     
     def simulate(self, node: MCTSNode) -> 'tuple[float, float]':
+        
         self.depth_reached = max(self.depth_reached, node.d)
         start = time.time()
         sim_state = node.get_state().deepcopy()
@@ -167,29 +174,29 @@ class MCTSAgent(ThudAgentTemplate):
             sim_state.act_on_state(action)
         results = sim_state.dwarf_score(), sim_state.troll_score()
         
-        self.total_sim_time += time.time() - start
+        self.simulation_time += time.time() - start
         return results
 
     def act(self, state: GameState, game_number: int, wins: dict) -> Action:
-        self.total_sim_time = 0
-        
+        self.simulation_time = 0
         self.tree = MCTSTree(state, self.simulate, simulations_per_turn=math.inf, max_time=self.MAX_TIME)
         self.tree.run_simulations()
         child = self.tree.chose_best_node()
-        print(f'total simulation time = {self.total_sim_time}')
+        print(f'tree size = {self.tree.size}')
+        print(f'total simulation time = {self.simulation_time}')
         print(f'best depth reached = {self.depth_reached}')
+        
         # # reroot with the chosen state so the root matches the next players state
         # self.tree.reroot_from_state(child.state)
         return child.action
-    
-    
-
 
     
 class UnfairMCTSAgent(MCTSAgent):
     def __init__(self, name, agentClassName) -> None:
         super().__init__(name, agentClassName)
         
+        
+    
     def simulate(self, node: MCTSNode) -> 'tuple[float, float]':
         self.depth_reached = max(self.depth_reached, node.d)
         
@@ -203,7 +210,7 @@ class UnfairMCTSAgent(MCTSAgent):
                 actions = sim_state.get_actions_from_loc(x,y)
             action = random.choice(actions)
             sim_state.act_on_state(action)
-        print(time.time()-start)
+        # print(time.time()-start)
         results = sim_state.dwarf_score(), sim_state.troll_score()
         self.simulation_time += time.time() - start
         return results    

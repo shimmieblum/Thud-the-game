@@ -87,10 +87,13 @@ trolls: {troll_player}''')
     
 class QuietUI(UserInterfaceTemplate):
 
-    
-
     def start_message(self):
         pass
+    
+    
+    def end_game(self, wins, winner):
+        print('game over')
+        print(f'winner = {winner}')
     
 
     def end_of_match(self, wins, best_of):
