@@ -13,7 +13,6 @@ from .userInterfaces.userInterface import TerminalUI, QuietUI
 
 def main():
     # logging.basicConfig(filename=r"C:\Users\User\Desktop\proj_info.txt")
-
     ''' read options from command line to instantiate match '''
     from optparse import OptionParser
     usage_string = '''
@@ -50,7 +49,7 @@ def main():
 
     # agent1param = agent2param = ''
     # params = str(options.parameters).split(',')
-    # for param_set in params: 
+    # for param_set in params:
     #     details = param_set.split(':')
     #     if details[0].trim() == '2':
     #         agent1param = details[1]
@@ -92,7 +91,8 @@ def main():
     profiler = cProfile.Profile()
     profiler.enable()
     # cProfile.run('play_match(best_of, player1, player2, ui, delay)')
-    wins = play_match(best_of=best_of, player1=player1, player2=player2, ui=ui, game_length=game_length, delay=delay)
+    wins = play_match(best_of=best_of, player1=player1,
+                      player2=player2, ui=ui, game_length=game_length, delay=delay)
     profiler.disable()
     stats = pstats.Stats(profiler).sort_stats('tottime')
     stats.print_stats()

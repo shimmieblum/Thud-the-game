@@ -64,7 +64,8 @@ Press enter to continue
         wait = True
         while wait:
             for event in pg.event.get():
-                if event.type == QUIT: pg.quit()
+                if event.type == QUIT:
+                    pg.quit()
                 if event.type == KEYDOWN and event.key == K_RETURN:
                     wait = False
 
@@ -84,7 +85,8 @@ Press enter to continue
         wait = True
         while wait:
             for event in pg.event.get():
-                if event.type == QUIT: pg.quit()
+                if event.type == QUIT:
+                    pg.quit()
                 if event.type == KEYDOWN and event.key == pg.K_RETURN:
                     wait = False
 
@@ -152,7 +154,8 @@ Press enter to continue
             from_loc = self.prev_action.from_loc
             to_loc = self.prev_action.to_loc
             movetype = self.prev_action.movetype
-            capture_list_string = ', '.join((str(x) for x in self.prev_action.capture))
+            capture_list_string = ', '.join(
+                (str(x) for x in self.prev_action.capture))
 
             action_text = '\n'.join(['move details',
                                      f'{movetype}',
@@ -177,15 +180,19 @@ Press enter to continue
         self.create_grid(state, self.details_panel_height)
         pg.display.flip()
         for event in pg.event.get():
-            if event.type == QUIT: pg.quit()
+            if event.type == QUIT:
+                pg.quit()
 
     def begin_turn(self, state: GameState, turn_number, game_length, game_number, best_of, wins, dwarf_player,
                    troll_player, prev_action):
-        self.update_info(game_number, best_of, wins, dwarf_player, troll_player, turn_number, game_length, prev_action)
+        self.update_info(game_number, best_of, wins, dwarf_player,
+                         troll_player, turn_number, game_length, prev_action)
         self.display_details_panel(state)
         self.display_grid(state)
-        if prev_action == None: return
-        self.highlight_squares([prev_action.to_loc, prev_action.from_loc], (17, 189, 77))
+        if prev_action == None:
+            return
+        self.highlight_squares(
+            [prev_action.to_loc, prev_action.from_loc], (17, 189, 77))
         self.highlight_squares((x for x in prev_action.capture), (42, 74, 53))
 
     def render_text(self, text, colour, top_left, line_height, text_size=24) -> int:
@@ -199,15 +206,18 @@ Press enter to continue
 
     def create_grid(self, state: GameState, display_panel_height):
         width, height = pg.display.get_window_size()
-        self.surface.fill(GUI.BLACK, (0, display_panel_height, width, height - display_panel_height))
+        self.surface.fill(GUI.BLACK, (0, display_panel_height,
+                          width, height - display_panel_height))
         square_colours = {1: GUI.GREY, -1: GUI.WHITE}
 
         self.LEFT_MARGIN = width // 60
         self.RIGHT_MARGIN = width // 60
         self.TOP_MARGIN = height // 60 + display_panel_height + 10
         self.BOTTOM_MARGIN = height // 60
-        self.square_height = (height - (self.TOP_MARGIN + self.BOTTOM_MARGIN)) // 17
-        self.square_width = (width - (self.LEFT_MARGIN + self.RIGHT_MARGIN)) // 17
+        self.square_height = (
+            height - (self.TOP_MARGIN + self.BOTTOM_MARGIN)) // 17
+        self.square_width = (
+            width - (self.LEFT_MARGIN + self.RIGHT_MARGIN)) // 17
 
         colour = 1
         for x in range(17):
@@ -224,11 +234,14 @@ Press enter to continue
                     c = (0, 0, 0)
                 left = self.LEFT_MARGIN + x * self.square_width
                 top = self.TOP_MARGIN + (16 - y) * self.square_height
-                pg.draw.rect(self.surface, c, pg.Rect(left, top, self.square_width, self.square_height))
-                if x == 0 and y > 0: self.render_text(f'   {y} ', GUI.WHITE, top_left=(left, top),
-                                                      line_height=self.square_height)
-                if y == 0 and x > 0: self.render_text(f'   {x} ', GUI.WHITE, top_left=(left, top + 15),
-                                                      line_height=self.square_height)
+                pg.draw.rect(self.surface, c, pg.Rect(
+                    left, top, self.square_width, self.square_height))
+                if x == 0 and y > 0:
+                    self.render_text(f'   {y} ', GUI.WHITE, top_left=(left, top),
+                                     line_height=self.square_height)
+                if y == 0 and x > 0:
+                    self.render_text(f'   {x} ', GUI.WHITE, top_left=(left, top + 15),
+                                     line_height=self.square_height)
 
     def get_coordinates(self, mouse_position):
         x_pos, y_pos = mouse_position
@@ -252,10 +265,12 @@ Press enter to continue
             tly = self.TOP_MARGIN + (16 - y) * self.square_height
             b_width = self.square_width // 10
             border_colour = colour
-            pg.draw.rect(self.surface, border_colour, pg.Rect(tlx, tly, self.square_width, b_width))
+            pg.draw.rect(self.surface, border_colour, pg.Rect(
+                tlx, tly, self.square_width, b_width))
             pg.draw.rect(self.surface, border_colour,
                          pg.Rect(tlx, tly + self.square_height - b_width, self.square_width, b_width))
-            pg.draw.rect(self.surface, border_colour, pg.Rect(tlx, tly, b_width, self.square_height))
+            pg.draw.rect(self.surface, border_colour, pg.Rect(
+                tlx, tly, b_width, self.square_height))
             pg.draw.rect(self.surface, border_colour,
                          pg.Rect(tlx + self.square_width - b_width, tly, b_width, self.square_height))
 
@@ -288,7 +303,8 @@ Press enter to continue
         text_size = text_block_height // len(lines)
         font = font(None, text_size)
         line_number = 0
-        rect = pg.draw.rect(self.surface, box_fill, pg.Rect(tlx, tly, width, height))
+        rect = pg.draw.rect(self.surface, box_fill,
+                            pg.Rect(tlx, tly, width, height))
         ttlx, ttly = 0, tly + margin
         for line in lines:
             text_width, text_height = font.size(line)
@@ -299,7 +315,8 @@ Press enter to continue
             elif horizontal_alignment == Alignment.RIGHT:
                 ttlx = tlx + (width - margin - text_width)
             line_number += 1
-            self.render_text(line, text_colour, (ttlx, ttly), line_height=text_size, text_size=text_size)
+            self.render_text(line, text_colour, (ttlx, ttly),
+                             line_height=text_size, text_size=text_size)
             ttly = ttly + text_height
         pg.display.flip()
         return rect
