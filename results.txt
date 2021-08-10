@@ -1,0 +1,10 @@
+time = 5s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
+time = 10s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
+time = 15s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
+time = 20s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
+time = 25s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
+time = 30s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
+time = 35s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
+time = 40s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
+time = 45s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
+time = 50s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
