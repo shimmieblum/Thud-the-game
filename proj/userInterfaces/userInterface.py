@@ -4,7 +4,7 @@ from pygame import color, mouse
 from pygame.constants import KEYDOWN, MOUSEBUTTONDOWN, QUIT
 from pygame.draw import line
 from ..model.enums import Piece
-from ..model.state import Action, GameState
+from ..model.state import Action, ThudGameState
 from pprint import pprint
 
 
@@ -59,7 +59,7 @@ start game
 dwarf: {dwarf_player}
 trolls: {troll_player}''')
 
-    def begin_turn(self, state: GameState, turn_number, game_length, game_number, best_of, wins, dwarf_player, troll_player, prev_action):
+    def begin_turn(self, state: ThudGameState, turn_number, game_length, game_number, best_of, wins, dwarf_player, troll_player, prev_action):
         d = {Piece.DWARF: ' d ',
              Piece.TROLL: ' t ',
              Piece.EMPTY: ' - ',

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import NoReturn
 
 import time
-from .state import Action, GameState
+from .state import Action, ThudGameState
 from .enums import Piece
 from ..userInterfaces.userInterface import UserInterfaceTemplate
 
@@ -70,7 +70,7 @@ def __play_game(dwarf_player, troll_player, ui: UserInterfaceTemplate,
     @param wins: win dictionary
     '''
     # initial state
-    state = GameState(turns_per_game=game_length)
+    state = ThudGameState(turns_per_game=game_length)
     # init stats
     stats = GameStats(game_num=game_number, total_games=best_of,
                       troll_agent=troll_player.agentClassName,
@@ -99,8 +99,8 @@ def __play_game(dwarf_player, troll_player, ui: UserInterfaceTemplate,
         # generate new state
         state = state.take_action(action)
         
-    stats.troll_score = state.troll_score()
-    stats.dwarf_score = state.dwarf_score()
+    stats.troll_score = state.score(Piece.TROLL)
+    stats.dwarf_score = state.score(Piece.DWARF)
     winning_piece = state.winner()
 
     winner = players[winning_piece]

@@ -2,13 +2,13 @@
 import unittest
 
 from ..model.enums import Piece
-from ..model.state import Action, GameState, MoveType
+from ..model.state import Action, ThudGameState, MoveType
 
 
 class TestGameState(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.state = GameState()
+        self.state = ThudGameState()
 
     def test_new_state(self):
         self.assertEqual(self.state.turn_number, 1, 'first turn = 1')
@@ -33,7 +33,7 @@ class TestGameState(unittest.TestCase):
         ]
         for x, y, ix, iy, piece, ex_result, description in expected:
             self.assertEqual(
-                self.state.__get_line_length(x, y, ix, iy, piece),
+                self.state._get_line_length(x, y, ix, iy, piece),
                 ex_result,
                 description)
 
@@ -252,7 +252,7 @@ class TestGameState(unittest.TestCase):
     def test_next_turn(self):
         self.assertTrue(self.state.turn ==
                         Piece.DWARF and self.state.turn_number == 1)
-        self.state.__next_move()
+        self.state._next_move()
         self.assertTrue(self.state.turn ==
                         Piece.TROLL and self.state.turn_number == 2)
 

@@ -1,3 +1,4 @@
+from typing import Generator
 from dataclasses import dataclass
 from enum import Enum
 from abc import abstractmethod
@@ -45,49 +46,78 @@ class Action:
 
 class GameStateTemplate:
     
-    def __init__(self, grid=None, turn_number=1, previous_state=None, turns_per_game=70,
-                 prev_action=None) -> None:
-        pass
-    
     @abstractmethod
     def valid_actions(self) -> 'list[Action]':
         pass
     
     @abstractmethod
-    def get_subsequent_states(self):
+    def get_subsequent_states(self)-> 'Generator[GameStateTemplate]':
         pass
-    
     
     @abstractmethod
     def take_action_on_state(self, action: Action) -> None:
+        """
+        Act directly on a state and return None
+        """
         pass
     
     @abstractmethod
-    def take_action(self, action: 'Action') -> 'GameState':
-        pass
+    def take_action(self, action: 'Action') -> 'ThudGameState':
+        """
+        Perform this action on a new state and return new state
+        @param: action as triple: ((start loc), (end loc), capture list)
+        """
+        pass        
     
     @abstractmethod
     def deepcopy(self):
+        """
+        Return deepcopy of this state
+        """
+        pass        
+    
+    @abstractmethod
+    def get_locations(self, piece_type) -> 'list[tuple]':
+        """
+        Get list of locations a given piece can be found at
+        """
         pass
     
     @abstractmethod
-    def score(self, piece)-> int:
+    def score(self, piece_type):
+        """
+        Get score of a piece type in this state
+        """
+        pass
+    
+    @abstractmethod
+    def get_capture_sets(self, end_loc, movetype) -> 'list[set]':
+        """get locations that can be captured from this move. Most appropriate for Thud, needed for ui"""
         pass
     
     @abstractmethod
     def game_over(self) -> bool:
+        '''
+        @return: True if this state is an end of game state
+        '''
         pass
     
     @abstractmethod
     def winner(self) -> Piece:
+        '''
+        @return: the winner
+        '''
         pass
     
     @abstractmethod
     def get_representation(self):
+        '''
+        Return representation of this state as a 4d NUMPY array.
+        '''
         pass
     
     
-class GameState:
+class ThudGameState(GameStateTemplate):
     """
     A gameState object represents the game at the certain point. information contained:
     - the turn number
@@ -133,7 +163,7 @@ class GameState:
         @return: list of Actions
         """
         ret_list = []
-        starts = self.dwarves() if self.turn is Piece.DWARF else self.trolls()
+        starts = self._dwarves() if self.turn is Piece.DWARF else self._trolls()
         for x, y in starts:
             ret_list.extend(self.__get_actions_from_loc(x, y))
         return ret_list
@@ -154,7 +184,7 @@ class GameState:
         if self.grid.get_piece(x, y) == Piece.DWARF:
             return self.__get_dwarf_actions_from_loc(x, y)
         elif self.grid.get_piece(x, y) == Piece.TROLL:
-            return self.__get_troll_actions_from_loc(x, y)
+            return self._get_troll_actions_from_loc(x, y)
         else:
             return []
 
@@ -162,21 +192,21 @@ class GameState:
         """
         @return: list of all dwarf actions from location (x,y)
         """
-        return_list = self.__dwarf_moves_from_location(x, y)
+        return_list = self._dwarf_moves_from_location(x, y)
         if len(return_list) > 0:
-            return_list.extend(self.__dwarf_hurls_from_location(x, y))
+            return_list.extend(self._dwarf_hurls_from_location(x, y))
         return return_list
 
-    def __get_troll_actions_from_loc(self, x, y):
+    def _get_troll_actions_from_loc(self, x, y):
         """
         @return: list of all troll actions from location (x,y)
         """
-        return_list = self.__troll_moves_from_location(x, y)
+        return_list = self._troll_moves_from_location(x, y)
         if len(return_list) > 0:
-            return_list.extend(self.__troll_hurls_from_location(x, y))
+            return_list.extend(self._troll_hurls_from_location(x, y))
         return return_list
 
-    def __dwarf_moves_from_location(self, x, y) -> 'list[Action]':
+    def _dwarf_moves_from_location(self, x, y) -> 'list[Action]':
         """
         - dwarf 'normal move': a straight lines when unobstructed.
         - dwarf can't capture in 'normal move', only in  a hurl
@@ -198,7 +228,7 @@ class GameState:
                 piece = self.grid.get_piece(nx, ny)
         return return_list
 
-    def __dwarf_hurls_from_location(self, x, y) -> 'list[Action]':
+    def _dwarf_hurls_from_location(self, x, y) -> 'list[Action]':
         """
         - dwarf 'hurls': the front dwarf of a line of dwarves can be hurled the length of the line behind it.
         - a 'hurl can only be completed if the dwarf captures a troll by landing on it
@@ -212,7 +242,7 @@ class GameState:
                       for y in [1, 0, -1] if (x, y) != (0, 0)]
         for ix, iy in increments:
             line_ix, line_iy = -ix, -iy
-            length = self.__get_line_length(x, y, line_ix, line_iy, Piece.DWARF)
+            length = self._get_line_length(x, y, line_ix, line_iy, Piece.DWARF)
             nx, ny = x, y
             for _ in range(length):
                 nx, ny = nx + ix, ny + iy
@@ -225,7 +255,7 @@ class GameState:
                     break
         return return_list
 
-    def __troll_moves_from_location(self, x, y) -> 'list[Action]':
+    def _troll_moves_from_location(self, x, y) -> 'list[Action]':
         """
         get troll 'normal moves' - ie one step in any direction.
         the troll can capture one dwarf on its move if the dwarf is adjacent to the start location
@@ -246,7 +276,7 @@ class GameState:
 
         return return_list
 
-    def __troll_hurls_from_location(self, x, y) -> 'list[Action]':
+    def _troll_hurls_from_location(self, x, y) -> 'list[Action]':
         '''
         get the trolls 'shove moves'
         to shove, the trolls require a line of trolls behind
@@ -256,7 +286,7 @@ class GameState:
                         for y in [-1, 0, 1] if (x, y) != (0, 0)]
         return_list = []
         for ix, iy in incremenents:
-            line_length = self.__get_line_length(x, y, -ix, -iy, Piece.TROLL)
+            line_length = self._get_line_length(x, y, -ix, -iy, Piece.TROLL)
             if line_length < 2:
                 # Don't allow hurls of a single troll
                 continue
@@ -279,7 +309,7 @@ class GameState:
                             if capture is not []))
         return return_list
 
-    def __get_line_length(self, x, y, ix, iy, piece_type) -> int:
+    def _get_line_length(self, x, y, ix, iy, piece_type) -> int:
         """
         Calculates the strength of the line begind the piece at x,y
         @(x, y): start location
@@ -309,10 +339,10 @@ class GameState:
         for x, y in capture:
             self.grid.remove_piece(x, y)
         self.grid.move_piece(from_x, from_y, to_x, to_y)
-        self.__next_move()
+        self._next_move()
         self.prev_action = action
 
-    def take_action(self, action: 'Action') -> 'GameState':
+    def take_action(self, action: 'Action') -> 'ThudGameState':
         """
         Perform this action on a new state and return new state
         @param: action as triple: ((start loc), (end loc), capture list)
@@ -323,7 +353,7 @@ class GameState:
         next_state.prev_action = action
         return next_state
 
-    def __next_move(self):
+    def _next_move(self):
         """
         Increment turn number and change turn
         """
@@ -334,37 +364,51 @@ class GameState:
         """
         Return deepcopy of this state
         """
-        return GameState(grid=self.grid.deepcopy(), turn_number=self.turn_number,
+        return ThudGameState(grid=self.grid.deepcopy(), turn_number=self.turn_number,
                          previous_state=self.previous_state)
 
-    def get_locations(self, piece_type):
+    def get_locations(self, piece_type) -> 'list[tuple]':
         """
         Get list of locations a given piece can be found at
         """
-
-    def dwarves(self):
+        if piece_type == Piece.DWARF:
+             self._dwarves()
+        elif piece_type == Piece.TROLL:
+            self._trolls() 
+        else: 
+            return []
+        
+    def _dwarves(self):
         """
         @return: list of all locations containing dwarves
         """
         return self.grid.get_piece_list(Piece.DWARF)
 
-    def trolls(self):
+    def _trolls(self):
         """
         @return: list of all locations containing trolls
         """
         return self.grid.get_piece_list(Piece.TROLL)
 
-    def dwarf_score(self) -> int:
+    def score(self, piece_type):
+        """
+        Get score of a piece type in this state
+        """
+        return (self._dwarf_score() if piece_type == Piece.DWARF 
+                else self._troll_score() if piece_type == Piece.TROLL  
+                else 0)        
+    
+    def _dwarf_score(self) -> int:
         """
         @return: the dwarf score
         """
-        return len(self.dwarves())
+        return len(self._dwarves())
 
-    def troll_score(self) -> int:
+    def _troll_score(self) -> int:
         """
         @return: the troll score
         """
-        return len(self.trolls()) * 4
+        return len(self._trolls()) * 4
 
     def get_capture_sets(self, end_loc, movetype) -> 'list[set]':
         if movetype == MoveType.DWARF_MOVE:
@@ -388,15 +432,15 @@ class GameState:
         @return: True if one piece has no more pieces. Else False
         '''
 
-        return self.turn_number > self.turns_per_game or len(self.dwarves()) == 0 or len(self.trolls()) == 0
+        return self.turn_number > self.turns_per_game or len(self._dwarves()) == 0 or len(self._trolls()) == 0
 
     def winner(self) -> Piece:
         '''
         @return: the Piece with the highest score.
         In case of a draw return 'draw'.
         '''
-        d_score = self.dwarf_score()
-        t_score = self.troll_score()
+        d_score = self._dwarf_score()
+        t_score = self._troll_score()
         return Piece.DWARF if d_score > t_score else Piece.TROLL if t_score > d_score else 'draw'
 
     def get_representation(self):
@@ -415,7 +459,7 @@ class GameState:
         return final_array
 
     def __eq__(self, o: object) -> bool:
-        if not isinstance(o, GameState):
+        if not isinstance(o, ThudGameState):
             return False
         else:
             return (o.grid == self.grid and

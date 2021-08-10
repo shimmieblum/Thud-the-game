@@ -2,7 +2,7 @@
 from proj.model.match import GameStats
 from typing import Generator
 from proj.model.enums import Piece
-from proj.model.state import Action, GameState
+from proj.model.state import Action, ThudGameState
 from proj.agents.template import ThudAgentTemplate
 
 import math
@@ -13,13 +13,13 @@ class MiniMaxAgent(ThudAgentTemplate):
     def __init__(self, name, agentClassName) -> None:
         super().__init__(name, agentClassName)
 
-    def act(self, state: GameState, game_number: int,
+    def act(self, state: ThudGameState, game_number: int,
             wins: dict, stats: GameStats) -> Action:
         piece = state.turn
         offset = 1 if state.turn == Piece.DWARF else -1
 
-        def value_fn(state: GameState):
-            return offset * (state.dwarf_score() - state.troll_score())
+        def value_fn(state: ThudGameState):
+            return offset * (state.score(Piece.DWARF) - state.score(Piece.TROLL))
 
         tree = Tree(value_fn=value_fn, state=state, max_depth=4,
                     max_time=10, optimisation=[], display_process=False)
@@ -35,13 +35,13 @@ class MiniMaxABAgent(ThudAgentTemplate):
     def __init__(self, name, agentClassName) -> None:
         super().__init__(name, agentClassName)
 
-    def act(self, state: GameState, game_number: int,
+    def act(self, state: ThudGameState, game_number: int,
             wins: dict, stats: GameStats) -> Action:
         piece = state.turn
         offset = 1 if state.turn == Piece.DWARF else -1
 
-        def value_fn(state: GameState):
-            return offset * (state.dwarf_score() - state.troll_score())
+        def value_fn(state: ThudGameState):
+            return offset * (state.score(Piece.DWARF) - state.score(Piece.TROLL))
 
         tree = Tree(value_fn=value_fn, state=state, max_depth=2,
                     max_time=10, optimisation=['AlphaBeta'], display_process=False)
@@ -54,7 +54,7 @@ class MiniMaxABAgent(ThudAgentTemplate):
 
 
 class Node:
-    def __init__(self, value_fn, action, state: GameState, depth) -> None:
+    def __init__(self, value_fn, action, state: ThudGameState, depth) -> None:
         self.value_fn = value_fn
         self.action = action
         self.state = state

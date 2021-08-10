@@ -1,7 +1,7 @@
 import time
 
 from ..model.enums import Piece
-from ..model.state import GameState, Action
+from ..model.state import ThudGameState, Action
 from ..agents.template import ThudAgentTemplate
 
 import random
@@ -15,7 +15,7 @@ class RandomAgent(ThudAgentTemplate):
     def __init__(self, name, agentClassName) -> None:
         super().__init__(name, agentClassName)
 
-    def act(self, state: GameState, game_number: int,
+    def act(self, state: ThudGameState, game_number: int,
             wins: dict, stats) -> Action:
         actions = state.valid_actions()
         # time.sleep(0.5)
@@ -31,7 +31,7 @@ class BetterRandomAgent(ThudAgentTemplate):
     def __init__(self, name, agentClassName) -> None:
         super().__init__(name, agentClassName)
 
-    def act(self, state: GameState, game_number: int,
+    def act(self, state: ThudGameState, game_number: int,
             wins: dict, stats) -> Action:
         # time.sleep(0.5)
 

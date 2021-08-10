@@ -4,7 +4,7 @@ import pygame as pg
 from pygame.constants import KEYDOWN, K_RETURN, QUIT
 
 from proj.model.enums import Piece
-from proj.model.state import GameState
+from proj.model.state import ThudGameState
 from .userInterface import UserInterfaceTemplate
 
 
@@ -136,7 +136,7 @@ Press enter to continue
         self.best_of = best_of
         self.turn_number = turn_number
 
-    def display_details_panel(self, state: GameState):
+    def display_details_panel(self, state: ThudGameState):
 
         w, h = pg.display.get_window_size()
         dwarf_text = f'DWARVES\n{self.dwarf_name}\n{self.dwarf_agent_type}\n wins: {self.dwarf_wins}'
@@ -167,8 +167,8 @@ Press enter to continue
         info_text = '\n'.join(['INFO',
                                f'game {self.game_number}/{self.best_of}',
                                f'turn {self.turn_number}/{self.game_length}',
-                               f'DWARVES: {state.dwarf_score()}',
-                               f'TROLLS: {state.troll_score()}'])
+                               f'DWARVES: {state.score(Piece.DWARF)}',
+                               f'TROLLS: {state.score(Piece.TROLL)}'])
 
         self.add_text_box(info_text, (w - 250 - 20, 160), 250, 100, box_fill=GUI.GREY, text_colour=GUI.WHITE,
                           autosize_text=True)
@@ -183,7 +183,7 @@ Press enter to continue
             if event.type == QUIT:
                 pg.quit()
 
-    def begin_turn(self, state: GameState, turn_number, game_length, game_number, best_of, wins, dwarf_player,
+    def begin_turn(self, state: ThudGameState, turn_number, game_length, game_number, best_of, wins, dwarf_player,
                    troll_player, prev_action):
         self.update_info(game_number, best_of, wins, dwarf_player,
                          troll_player, turn_number, game_length, prev_action)
@@ -204,7 +204,7 @@ Press enter to continue
             ty += line_height
         return ty
 
-    def create_grid(self, state: GameState, display_panel_height):
+    def create_grid(self, state: ThudGameState, display_panel_height):
         width, height = pg.display.get_window_size()
         self.surface.fill(GUI.BLACK, (0, display_panel_height,
                           width, height - display_panel_height))

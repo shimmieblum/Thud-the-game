@@ -15,7 +15,7 @@ from tensorflow.keras import layers
 from tensorflow.python.keras import callbacks, models
 from tensorflow.python.keras.engine.input_layer import InputLayer
 from tensorflow.python.ops.gen_array_ops import shape
-from ..model.state import Action, GameState
+from ..model.state import Action, ThudGameState
 from pandas import DataFrame
 from ..model import match
 
@@ -42,7 +42,7 @@ def game(dwarf_agent:ThudAgentTemplate, troll_agent:ThudAgentTemplate, states_pe
     piece_values = {Piece.DWARF:1, Piece.TROLL: -1, 'draw':0}
     print('playing game')
     states = []
-    state = GameState()
+    state = ThudGameState()
     
     # game is 70 turns long
     player, other = dwarf_agent, troll_agent
@@ -76,7 +76,7 @@ def game(dwarf_agent:ThudAgentTemplate, troll_agent:ThudAgentTemplate, states_pe
     
     
     
-def _model(example_state:GameState, conv_depth):
+def _model(example_state:ThudGameState, conv_depth):
     '''
     x_in = last 3 states
     each state = list 3 arrays:
@@ -113,7 +113,7 @@ def train_model(dataset:DataFrame) -> models.Model:
     3) record the training process
     4) return the trained model
     '''
-    model = _model(GameState(), 2)
+    model = _model(ThudGameState(), 2)
     x_train, y_train = dataset.pop('x'), dataset.pop('y')
     y_train = np.asarray(y_train / abs(y_train).max() / 2 + 0.5, dtype=np.float32)
     
@@ -138,7 +138,7 @@ class CNNAgent(ThudAgentTemplate):
         super().__init__(name, agentClassName)
         self.model = train_model(get_dataset(30, 10, BetterRandomAgent('player1', 'BetterRandomAgent'), BetterRandomAgent('player2', 'BetterRandomAgent')))
         
-    def act(self, state: GameState, game_number: int, wins: dict) -> Action:
+    def act(self, state: ThudGameState, game_number: int, wins: dict) -> Action:
         '''
         
         Offset will normalise the prediction so highest is always better.

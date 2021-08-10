@@ -9,11 +9,11 @@ import time
 
 from proj.agents.template import ThudAgentTemplate
 from proj.model.enums import Piece
-from proj.model.state import Action, GameState
+from proj.model.state import Action, ThudGameState
 
 
 class MCTSNode:
-    def __init__(self, action, state: GameState, depth, parent) -> None:
+    def __init__(self, action, state: ThudGameState, depth, parent) -> None:
         '''
         Node class for MCTS. 
         Nodes are created without a state and they are generated when needed
@@ -166,12 +166,12 @@ class MCTSAgent(ThudAgentTemplate):
             actions = sim_state.valid_actions()
             action = random.choice(actions)
             sim_state.take_action_on_state(action)
-        results = sim_state.dwarf_score(), sim_state.troll_score()
+        results = sim_state.score(Piece.DWARF), sim_state.score(Piece.TROLL)
 
         self.simulation_time += time.time() - start
         return results
 
-    def act(self, state: GameState, game_number:
+    def act(self, state: ThudGameState, game_number:
             int, wins: dict, stats: GameStats) -> Action:
         turn = state.turn
         self.nodes_simulated = 0
@@ -207,12 +207,11 @@ class UnfairMCTSAgent(MCTSAgent):
         while not sim_state.game_over():
             actions = []
             while actions == []:
-                x, y = random.choice(
-                    sim_state.dwarves() if sim_state.turn == Piece.DWARF else sim_state.trolls())
+                x, y = random.choice(sim_state.get_locations(sim_state.turn))
                 actions = sim_state.__get_actions_from_loc(x, y)
             action = random.choice(actions)
             sim_state.take_action_on_state(action)
         # print(time.time()-start)
-        results = sim_state.dwarf_score(), sim_state.troll_score()
+        results = sim_state.score(Piece.DWARF), sim_state.score(Piece.TROLL)
         self.simulation_time += time.time() - start
         return results

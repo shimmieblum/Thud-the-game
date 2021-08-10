@@ -1,10 +1,10 @@
 from abc import abstractmethod
 from typing import Generator
-from proj.model.state import Action, GameState
+from proj.model.state import Action, ThudGameState
 
 
 class Node:
-    def __init__(self, value_fn, action, state: GameState, depth) -> None:
+    def __init__(self, value_fn, action, state: ThudGameState, depth) -> None:
         '''
         Node class for a game tree
         @param value_fn: function takes a node as a parameter and evaluates that node

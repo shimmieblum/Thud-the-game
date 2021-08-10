@@ -2,7 +2,7 @@ import os
 from abc import abstractmethod
 from proj.model.match import GameStats
 
-from ..model.state import GameState, Action
+from ..model.state import ThudGameState, Action
 
 
 class ThudAgentTemplate:
@@ -26,7 +26,7 @@ class ThudAgentTemplate:
         return str(self)
 
     @abstractmethod
-    def act(self, state: GameState, game_number: int,
+    def act(self, state: ThudGameState, game_number: int,
             wins: dict, stats: GameStats) -> Action:
         ''' select an action according to the gameState and return it '''
         pass
