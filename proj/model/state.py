@@ -97,23 +97,23 @@ class GameStateTemplate:
     
     @abstractmethod
     def game_over(self) -> bool:
-        '''
+        """
         @return: True if this state is an end of game state
-        '''
+        """
         pass
     
     @abstractmethod
     def winner(self) -> Piece:
-        '''
+        """
         @return: the winner
-        '''
+        """
         pass
     
     @abstractmethod
     def get_representation(self):
-        '''
+        """
         Return representation of this state as a 4d NUMPY array.
-        '''
+        """
         pass
     
     
@@ -277,11 +277,11 @@ class ThudGameState(GameStateTemplate):
         return return_list
 
     def _troll_hurls_from_location(self, x, y) -> 'list[Action]':
-        '''
+        """
         get the trolls 'shove moves'
         to shove, the trolls require a line of trolls behind
         trolls can capture 1+ adjacent dwarves when performing a shove
-        '''
+        """
         incremenents = [(x, y) for x in [-1, 0, 1]
                         for y in [-1, 0, 1] if (x, y) != (0, 0)]
         return_list = []
@@ -426,30 +426,30 @@ class ThudGameState(GameStateTemplate):
             return [set(capture_list) for capture_list in full_set]
 
     def game_over(self) -> bool:
-        '''
+        """
         If all pieces of one type are taken the game is over.
         If all the game turns have been used up the game is over.
         @return: True if one piece has no more pieces. Else False
-        '''
+        """
 
         return self.turn_number > self.turns_per_game or len(self._dwarves()) == 0 or len(self._trolls()) == 0
 
     def winner(self) -> Piece:
-        '''
+        """
         @return: the Piece with the highest score.
         In case of a draw return 'draw'.
-        '''
+        """
         d_score = self._dwarf_score()
         t_score = self._troll_score()
         return Piece.DWARF if d_score > t_score else Piece.TROLL if t_score > d_score else 'draw'
 
     def get_representation(self):
-        '''
+        """
         Return representation of this state as a 3d np array.
         1) 15x15 grid representing dwarf locations
         2) 15x15 grid representing troll locations
         3) 15x15 grid representing who's turn it si
-        '''
+        """
         val = 1 if self.turn == Piece.DWARF else 0
         dx, dy = self.grid.dimensions
         pieces_arrays = self.grid.get_representation()

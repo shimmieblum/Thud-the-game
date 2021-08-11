@@ -2,7 +2,7 @@
 from proj.model.match import GameStats
 from typing import Generator
 from proj.model.enums import Piece
-from proj.model.state import Action, ThudGameState
+from proj.model.state import Action, GameStateTemplate
 from proj.agents.template import ThudAgentTemplate
 
 import math
@@ -13,12 +13,12 @@ class MiniMaxAgent(ThudAgentTemplate):
     def __init__(self, name, agentClassName) -> None:
         super().__init__(name, agentClassName)
 
-    def act(self, state: ThudGameState, game_number: int,
+    def act(self, state: GameStateTemplate, game_number: int,
             wins: dict, stats: GameStats) -> Action:
         piece = state.turn
         offset = 1 if state.turn == Piece.DWARF else -1
 
-        def value_fn(state: ThudGameState):
+        def value_fn(state: GameStateTemplate):
             return offset * (state.score(Piece.DWARF) - state.score(Piece.TROLL))
 
         tree = Tree(value_fn=value_fn, state=state, max_depth=4,
@@ -35,12 +35,12 @@ class MiniMaxABAgent(ThudAgentTemplate):
     def __init__(self, name, agentClassName) -> None:
         super().__init__(name, agentClassName)
 
-    def act(self, state: ThudGameState, game_number: int,
+    def act(self, state: GameStateTemplate, game_number: int,
             wins: dict, stats: GameStats) -> Action:
         piece = state.turn
         offset = 1 if state.turn == Piece.DWARF else -1
 
-        def value_fn(state: ThudGameState):
+        def value_fn(state: GameStateTemplate):
             return offset * (state.score(Piece.DWARF) - state.score(Piece.TROLL))
 
         tree = Tree(value_fn=value_fn, state=state, max_depth=2,
@@ -54,7 +54,8 @@ class MiniMaxABAgent(ThudAgentTemplate):
 
 
 class Node:
-    def __init__(self, value_fn, action, state: ThudGameState, depth) -> None:
+    def __init__(self, value_fn, action, state: GameStateTemplate
+                 , depth) -> None:
         self.value_fn = value_fn
         self.action = action
         self.state = state
@@ -75,7 +76,7 @@ class Node:
 class Tree:
     def __init__(self, value_fn, state, max_depth, max_time,
                  optimisation, display_process=False) -> None:
-        '''
+        """
         Optimisation methods available: 
             1. 'AlphaBeta' (default enabled)
             2. 
@@ -86,7 +87,7 @@ class Tree:
         @param max_time: max time to spent searching tree
         @param optimisation: list of optimisation techniques to use.
 
-        '''
+        """
         self.root = Node(value_fn=value_fn, state=state, action=None, depth=0)
         self.max_depth = max_depth
         self.max_time = max_time
@@ -167,6 +168,6 @@ class Display:
         Display.display(node, mini_value, mini_child, 'minival')
 
     def display(node, c_val, child, stringterm):
-        string = (f'''d: {node.depth}, {stringterm}: {c_val}''')
+        string = (f"""d: {node.depth}, {stringterm}: {c_val}""")
         print(string)
         # if c_val >=0: input(' ')

@@ -1,17 +1,16 @@
-from os import stat
 from dataclasses import dataclass
 from typing import NoReturn
 
 import time
-from .state import Action, ThudGameState
+from .state import Action, GameStateTemplate
 from .enums import Piece
 from ..userInterfaces.userInterface import UserInterfaceTemplate
 
-'''=== code for a match ==='''
+"""=== code for a match ==="""
 
 
 def play_match(best_of, player1, player2, ui: UserInterfaceTemplate, game_length, delay) -> dict:
-    '''
+    """
     play a match of a given number of games, alternating each player each game.
     the winner wins the most games.
     @param best_of: the max number of games to play
@@ -20,7 +19,7 @@ def play_match(best_of, player1, player2, ui: UserInterfaceTemplate, game_length
     @ui: the userinterface to use
     @game_length: the number of turns per game
     @return: the dictionary of wins for each player
-    '''
+    """
 
     wins = {player1: 0, player2: 0, 'draw': 0}
     ui.start_message()
@@ -40,11 +39,11 @@ def play_match(best_of, player1, player2, ui: UserInterfaceTemplate, game_length
 
 
 def __match_over(wins, num_games) -> bool:
-    ''' check if one player has won the match according the the total match length 
+    """ check if one player has won the match according the the total match length 
     @param wins: the win dictionary
     @param num_games: total number of games to be played
     @return: whether the match is over or not
-    '''
+    """
     games = num_games - wins['draw']
     for player, num_wins in wins.items():
         if player != 'draw' and num_wins > games/2:
@@ -53,12 +52,12 @@ def __match_over(wins, num_games) -> bool:
         return False
 
 
-'''=== code for a game ==='''
+"""=== code for a game ==="""
 
 
 def __play_game(dwarf_player, troll_player, ui: UserInterfaceTemplate,
                 game_length, game_number, best_of, wins, delay):
-    '''
+    """
     play a single game, starting with the dwarf player. 
     each player makes its move and this continues until specified number of moves taken or one type has no pieces left
     @param dwarf_player: the dwarf player
@@ -68,9 +67,9 @@ def __play_game(dwarf_player, troll_player, ui: UserInterfaceTemplate,
     @param game_number: total number of games played so far
     @param total_games: the number of games to be played
     @param wins: win dictionary
-    '''
+    """
     # initial state
-    state = ThudGameState(turns_per_game=game_length)
+    state = GameStateTemplate(turns_per_game=game_length)
     # init stats
     stats = GameStats(game_num=game_number, total_games=best_of,
                       troll_agent=troll_player.agentClassName,

@@ -4,7 +4,7 @@ import pygame as pg
 from pygame.constants import KEYDOWN, K_RETURN, QUIT
 
 from proj.model.enums import Piece
-from proj.model.state import ThudGameState
+from proj.model.state import GameStateTemplate
 from .userInterface import UserInterfaceTemplate
 
 
@@ -19,9 +19,9 @@ class Alignment(enum.Enum):
 
 
 class GUI(UserInterfaceTemplate):
-    ''' 
+    """ 
     Pygame UI for thud
-    '''
+    """
 
     DWARF_COLOUR = BLUE = (0, 0, 255)
     TROLL_COLOUR = RED = (255, 0, 0)
@@ -51,13 +51,13 @@ class GUI(UserInterfaceTemplate):
         self.surface.fill((0, 0, 0))
         winstr = '\n'.join((str(x) for x in wins.items()))
         winner = max(wins.keys(), key=lambda x: wins[x])
-        text = f'''
+        text = f"""
 End of Match!!
 {winstr}
 MATCH OUT OF: {best_of} 
 winner is: {winner}
 Press enter to continue
-'''
+"""
         w, h = pg.display.get_window_size()
         self.render_text(text, (255, 255, 255), (20, h // 2 - 50), 50, 50)
         pg.display.flip()
@@ -72,13 +72,13 @@ Press enter to continue
     def end_game(self, wins, winner):
         self.surface.fill((0, 0, 0))
         winstr = '\n'.join((str(x) for x in wins.items()))
-        text = f'''
+        text = f"""
 GAME OVER!!
 winner was {winner}
 {winstr}
 
 Press enter to continue
-'''
+"""
         w, h = pg.display.get_window_size()
         self.render_text(text, (255, 255, 255), (20, h // 2 - 50), 50, 50)
         pg.display.flip()
@@ -109,7 +109,7 @@ Press enter to continue
     #         player1 = list(wins.items())[0]
     #         player2 = list(wins.items())[1]
 
-    #         self.info_text = f'''
+    #         self.info_text = f"""
     # game number: {game_number} / {best_of}
     # wins: {player1}   ||   {player2}
     # dwarves = {dwarf_player}    ||  trolls = {troll_player}
@@ -117,7 +117,7 @@ Press enter to continue
     # turn number: {turn_number} / {game_length}
     # turn: {state.turn}
     # previous action: {prev_action}
-    #         '''
+    #         """
 
     def update_info(self, game_number, best_of, wins, dwarf_player, troll_player, turn_number, game_length,
                     prev_action):
@@ -136,7 +136,7 @@ Press enter to continue
         self.best_of = best_of
         self.turn_number = turn_number
 
-    def display_details_panel(self, state: ThudGameState):
+    def display_details_panel(self, state: GameStateTemplate):
 
         w, h = pg.display.get_window_size()
         dwarf_text = f'DWARVES\n{self.dwarf_name}\n{self.dwarf_agent_type}\n wins: {self.dwarf_wins}'
@@ -183,7 +183,7 @@ Press enter to continue
             if event.type == QUIT:
                 pg.quit()
 
-    def begin_turn(self, state: ThudGameState, turn_number, game_length, game_number, best_of, wins, dwarf_player,
+    def begin_turn(self, state: GameStateTemplate, turn_number, game_length, game_number, best_of, wins, dwarf_player,
                    troll_player, prev_action):
         self.update_info(game_number, best_of, wins, dwarf_player,
                          troll_player, turn_number, game_length, prev_action)
@@ -204,7 +204,7 @@ Press enter to continue
             ty += line_height
         return ty
 
-    def create_grid(self, state: ThudGameState, display_panel_height):
+    def create_grid(self, state: GameStateTemplate, display_panel_height):
         width, height = pg.display.get_window_size()
         self.surface.fill(GUI.BLACK, (0, display_panel_height,
                           width, height - display_panel_height))
@@ -255,11 +255,11 @@ Press enter to continue
             return x, y
 
     def highlight_squares(self, locations, colour):
-        '''
+        """
         highlight squares of locations in the list of locations
         @param locations: the list of locations to highlight
         @param colour: the colour to highlight the squares 
-        '''
+        """
         for x, y in locations:
             tlx = self.LEFT_MARGIN + (x) * self.square_width
             tly = self.TOP_MARGIN + (16 - y) * self.square_height

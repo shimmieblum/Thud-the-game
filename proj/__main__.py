@@ -13,11 +13,11 @@ from .userInterfaces.userInterface import TerminalUI, QuietUI
 
 def main():
     # logging.basicConfig(filename=r"C:\Users\User\Desktop\proj_info.txt")
-    ''' read options from command line to instantiate match '''
+    """ read options from command line to instantiate match """
     from optparse import OptionParser
-    usage_string = '''
+    usage_string = """
     USAGE:      python -m proj <options>
-    '''
+    """
     parser = OptionParser(usage_string)
     parser.add_option('-n', '--bestOf', dest='bestOf', type=int,
                       help='max number of GAMES in match (best of x games)', metavar='games')
@@ -39,7 +39,7 @@ def main():
                       help="add parameters for agents. agent 1 using '1: x=1 ...' & agent 2 using '2: y=2 ... ', seperated by a comma")
     options, other = parser.parse_args()
     if len(other) != 0:
-        raise Exception(f'''CLI can't understand {str(other)}''')
+        raise Exception(f"""CLI can't understand {str(other)}""")
     elif options.list_agents:
         list_agents()
         return
@@ -100,18 +100,18 @@ def main():
 
 
 def list_agents():
-    print('''Here's a list of agents:''')
+    print("""Here's a list of agents:""")
     # TODO learn how to list all classes ending in 'Agents' in the proj.agents package
 
     pass
 
 
 def load_agent(agentClassName: str):
-    '''
+    """
     load agent from agents module and return the class object
     @param agentClassName: the class to be used as the agent 
     @return: the agent class object to be instantiated
-    '''
+    """
     # s is name of the class
     prefix = 'proj.agents'
     # path_prefix = 'C:\Users\User\Desktop\proj_folder\proj\agents'

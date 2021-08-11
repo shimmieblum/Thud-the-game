@@ -1,11 +1,7 @@
-from abc import ABCMeta, abstractmethod
-from pygame import color, mouse
+from abc import abstractmethod
 
-from pygame.constants import KEYDOWN, MOUSEBUTTONDOWN, QUIT
-from pygame.draw import line
 from ..model.enums import Piece
-from ..model.state import Action, ThudGameState
-from pprint import pprint
+from ..model.state import  GameStateTemplate
 
 
 class UserInterfaceTemplate:
@@ -39,27 +35,27 @@ class UserInterfaceTemplate:
 
 
 class TerminalUI(UserInterfaceTemplate):
-    '''
-    Terminal UI for thud'''
+    """
+    Terminal UI for thud"""
 
     def end_game(self, wins, winner):
         pass
 
     def start_message(self):
-        print('''hello''')
+        print("""hello""")
 
     def end_of_match(self, wins, best_of):
-        print(f'''
+        print(f"""
 match over: {wins}
-best of: {best_of}''')
+best of: {best_of}""")
 
     def new_game(self, dwarf_player, troll_player, game_length, game_number, wins):
-        print(f'''
+        print(f"""
 start game
 dwarf: {dwarf_player}
-trolls: {troll_player}''')
+trolls: {troll_player}""")
 
-    def begin_turn(self, state: ThudGameState, turn_number, game_length, game_number, best_of, wins, dwarf_player, troll_player, prev_action):
+    def begin_turn(self, state: GameStateTemplate, turn_number, game_length, game_number, best_of, wins, dwarf_player, troll_player, prev_action):
         d = {Piece.DWARF: ' d ',
              Piece.TROLL: ' t ',
              Piece.EMPTY: ' - ',

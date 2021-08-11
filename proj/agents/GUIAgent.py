@@ -6,8 +6,7 @@ from pygame.constants import K_RETURN
 from setuptools.namespaces import flatten
 
 
-from proj.model.enums import Piece
-from proj.model.state import Action, ThudGameState, MoveType
+from proj.model.state import Action, GameStateTemplate, MoveType
 from .template import ThudAgentTemplate
 from ..userInterfaces.GUI import GUI
 
@@ -20,10 +19,10 @@ class State(enum.Enum):
 
 
 class GUIAgent(ThudAgentTemplate):
-    '''
+    """
     This Agent is a user Agent.
     Using 
-    '''
+    """
 
     def __init__(self, name, agentClassName) -> None:
         self.state = State.FROM_LOC
@@ -32,7 +31,7 @@ class GUIAgent(ThudAgentTemplate):
     def set_gui(self, gui: GUI):
         self.gui = gui
 
-    def act(self, state: ThudGameState, game_number: int,
+    def act(self, state: GameStateTemplate, game_number: int,
             wins: dict, game_stats: GameStats) -> Action:
         """ select an action according to the gameState and return it """
         state_dictionary = {
@@ -58,7 +57,7 @@ class GUIAgent(ThudAgentTemplate):
                     action = fn(*args)
         return action
 
-    def from_loc(self, action: Action, game_state: ThudGameState,
+    def from_loc(self, action: Action, game_state: GameStateTemplate,
                  game_number, wins, event) -> Action:
         if event.type != pg.MOUSEBUTTONUP:
             return action
@@ -69,7 +68,7 @@ class GUIAgent(ThudAgentTemplate):
             self.change_state(action, State.TO_LOC, game_state)
         return action
 
-    def to_loc(self, action: Action, game_state: ThudGameState,
+    def to_loc(self, action: Action, game_state: GameStateTemplate,
                game_number, wins, event) -> Action:
         fx, fy = action.from_loc
         acceptable_moves = game_state.acceptable_moves(fx, fy)
@@ -91,7 +90,7 @@ class GUIAgent(ThudAgentTemplate):
             self.change_state(action, State.CAPTURE_LIST, game_state)
         return action
 
-    def capture_list(self, action: Action, game_state: ThudGameState,
+    def capture_list(self, action: Action, game_state: GameStateTemplate,
                      game_number, wins, event) -> Action:
 
         if event.type == pg.KEYDOWN and event.key == K_RETURN:
@@ -126,10 +125,10 @@ class GUIAgent(ThudAgentTemplate):
                 self.change_state(action, State.CAPTURE_LIST, game_state)
         return action
 
-    def change_state(self, action: Action, new_state, game_state: ThudGameState):
-        '''
+    def change_state(self, action: Action, new_state, game_state: GameStateTemplate):
+        """
         change state and display appropriate new display
-        '''
+        """
 
         self.state = new_state
         if new_state == State.FROM_LOC:

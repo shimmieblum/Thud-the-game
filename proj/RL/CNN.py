@@ -21,12 +21,12 @@ from ..model import match
 
 def get_dataset(num_games, states_per_game, agent1, agent2):
     data = []
-    print(f'''creating dataset: 
+    print(f"""creating dataset: 
 {num_games} games
 {states_per_game} states per game
 player1: {agent1},
 player2: {agent2}
-''')
+""")
     dwarf_player, troll_player = agent1, agent2
     for _ in range(num_games):
         data = game(dwarf_player, troll_player, states_per_game, data)
@@ -34,7 +34,7 @@ player2: {agent2}
         
     dataframe = DataFrame(data, columns=['x','y'])
     
-    print(f'''final dataframe shape: {dataframe.shape}''')
+    print(f"""final dataframe shape: {dataframe.shape}""")
     return dataframe
 
         
@@ -65,19 +65,19 @@ def game(dwarf_agent:ThudAgentTemplate, troll_agent:ThudAgentTemplate, states_pe
 
 
 # class Model:
-#     ''' 
+#     """ 
     
 #     1) create CNN model
 #     2) allow input of a state in correct format
 #     3) output of a valuation of the state
     
-#     '''
+#     """
     
     
     
     
 def _model(example_state:ThudGameState, conv_depth):
-    '''
+    """
     x_in = last 3 states
     each state = list 3 arrays:
        1) array with dwarf locations
@@ -86,7 +86,7 @@ def _model(example_state:ThudGameState, conv_depth):
             - 0's for dwarf turn
             - 1's for trolls turn
             
-    ''' 
+    """ 
     print('building model...')
     input_shape = example_state.get_representation().shape
     input_layer = layers.Input(shape=input_shape)
@@ -107,12 +107,12 @@ def _model(example_state:ThudGameState, conv_depth):
 
 
 def train_model(dataset:DataFrame) -> models.Model:
-    '''
+    """
     1) create/load model
     2) run training proceedure
     3) record the training process
     4) return the trained model
-    '''
+    """
     model = _model(ThudGameState(), 2)
     x_train, y_train = dataset.pop('x'), dataset.pop('y')
     y_train = np.asarray(y_train / abs(y_train).max() / 2 + 0.5, dtype=np.float32)
@@ -139,14 +139,14 @@ class CNNAgent(ThudAgentTemplate):
         self.model = train_model(get_dataset(30, 10, BetterRandomAgent('player1', 'BetterRandomAgent'), BetterRandomAgent('player2', 'BetterRandomAgent')))
         
     def act(self, state: ThudGameState, game_number: int, wins: dict) -> Action:
-        '''
+        """
         
         Offset will normalise the prediction so highest is always better.
         For each move: 
             1) get all subsequent states
             2) evaluate with the CNN model
             3) return the action leading to the highest valued state
-        '''
+        """
         offset = 1 if state.turn == Piece.DWARF else -1
         best_value, best_action = -math.inf, Action((), (), set(), None)
         for subs_state, action in state.get_subsequent_states():

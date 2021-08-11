@@ -121,7 +121,7 @@ class TestGameState(unittest.TestCase):
             self.assertIn(action, valid_troll_actions)
 
     def test_all_actions_valid(self):
-        '''check capture lists and action types match and correct action types for given pieces'''
+        """check capture lists and action types match and correct action types for given pieces"""
         dwarf_actions = self.get_dwarf_actions()
         troll_actions = self.get_troll_actions()
         for action in dwarf_actions:

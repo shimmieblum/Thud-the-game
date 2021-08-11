@@ -1,8 +1,6 @@
 import unittest
 from ..model.grid import Grid
 from ..model.enums import Piece
-from .testGameState import TestGameState
-
 
 class TestGrid(unittest.TestCase):
 
@@ -15,7 +13,7 @@ class TestGrid(unittest.TestCase):
         self.assertEqual(self.grid.dimensions, (15, 15))
 
     def test_get_pieces(self):
-        ''' test pieces are correct when creating board '''
+        """ test pieces are correct when creating board """
         expected = {
             (0, 0): Piece.NON_PLAYABLE,
             (10, 10): Piece.EMPTY,
@@ -33,7 +31,7 @@ class TestGrid(unittest.TestCase):
             self.assertEqual(self.grid.get_piece(x, y), expected_result)
 
     def test_set_piece(self):
-        ''' check pieces set correctly '''
+        """ check pieces set correctly """
         expected = [
             ((4, 3), (Piece.EMPTY, Piece.EMPTY, Piece.DWARF)),
             ((1, 1), (Piece.DWARF, Piece.NON_PLAYABLE, Piece.NON_PLAYABLE)),
@@ -49,7 +47,7 @@ class TestGrid(unittest.TestCase):
             self.assertEqual(ret_piece, e_return_piece, f'ret piece {(x,y)}')
 
     def test_remove_piece(self):
-        ''' check remove pieces works correctly '''
+        """ check remove pieces works correctly """
         expected = [
             ((5, 2), (Piece.DWARF, Piece.EMPTY)),
             ((5, 2), (Piece.EMPTY, Piece.EMPTY)),
@@ -67,7 +65,7 @@ class TestGrid(unittest.TestCase):
             self.assertEqual(new, e_new, str((x, y)))
 
     def test_move_piece(self):
-        ''' check pieces moved all work '''
+        """ check pieces moved all work """
 
         expected = [
             ((1, 10), (2, 10), (Piece.EMPTY, Piece.DWARF, Piece.EMPTY)),
@@ -119,7 +117,7 @@ class TestGrid(unittest.TestCase):
                 self.assertIn(loc, pieces)
 
     def test_pieces_list(self):
-        ''' === check pieces before changes === '''
+        """ === check pieces before changes === """
 
         expected = [
             (Piece.TROLL, [(7, 7), (7, 8), (9, 7)]),
@@ -133,7 +131,7 @@ class TestGrid(unittest.TestCase):
             for loc in e_locations:
                 self.assertIn(loc, locs, f'{loc} in {piece} list')
 
-        '''=== check pieces after setting piece ==='''
+        """=== check pieces after setting piece ==="""
 
     def test_all_pieces_lists(self):
         dwarves = [x for x in self.grid.pieces[Piece.DWARF]]

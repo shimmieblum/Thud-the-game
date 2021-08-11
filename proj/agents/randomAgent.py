@@ -1,21 +1,19 @@
-import time
 
-from ..model.enums import Piece
-from ..model.state import ThudGameState, Action
+from ..model.state import GameStateTemplate, Action
 from ..agents.template import ThudAgentTemplate
 
 import random
 
 
 class RandomAgent(ThudAgentTemplate):
-    '''
+    """
     This Agent will chose a random move from the list of valid actions
-    '''
+    """
 
     def __init__(self, name, agentClassName) -> None:
         super().__init__(name, agentClassName)
 
-    def act(self, state: ThudGameState, game_number: int,
+    def act(self, state: GameStateTemplate, game_number: int,
             wins: dict, stats) -> Action:
         actions = state.valid_actions()
         # time.sleep(0.5)
@@ -23,15 +21,15 @@ class RandomAgent(ThudAgentTemplate):
 
 
 class BetterRandomAgent(ThudAgentTemplate):
-    '''
+    """
     This Agent will select the move that will capture the most opponents.
     If no opponents can be captured a random choice is made 
-    '''
+    """
 
     def __init__(self, name, agentClassName) -> None:
         super().__init__(name, agentClassName)
 
-    def act(self, state: ThudGameState, game_number: int,
+    def act(self, state: GameStateTemplate, game_number: int,
             wins: dict, stats) -> Action:
         # time.sleep(0.5)
 
