@@ -1,5 +1,6 @@
 
-from proj.model.match import GameStats
+from proj.agents.gameTreeNode import GameTreeNode
+from proj.model.matchStats import MatchStats
 from typing import Generator
 from proj.model.enums import Piece
 from proj.model.state import Action, GameStateTemplate
@@ -14,14 +15,14 @@ class MiniMaxAgent(ThudAgentTemplate):
         super().__init__(name, agentClassName)
 
     def act(self, state: GameStateTemplate, game_number: int,
-            wins: dict, stats: GameStats) -> Action:
+            wins: dict, stats: MatchStats) -> Action:
         piece = state.turn
         offset = 1 if state.turn == Piece.DWARF else -1
 
         def value_fn(state: GameStateTemplate):
             return offset * (state.score(Piece.DWARF) - state.score(Piece.TROLL))
 
-        tree = Tree(value_fn=value_fn, state=state, max_depth=4,
+        tree = MiniMaxSearch(value_fn=value_fn, state=state, max_depth=4,
                     max_time=10, optimisation=[], display_process=False)
         action = tree.get_best_action()
         if piece == Piece.DWARF:
@@ -36,44 +37,41 @@ class MiniMaxABAgent(ThudAgentTemplate):
         super().__init__(name, agentClassName)
 
     def act(self, state: GameStateTemplate, game_number: int,
-            wins: dict, stats: GameStats) -> Action:
+            wins: dict, stats: MatchStats) -> Action:
         piece = state.turn
         offset = 1 if state.turn == Piece.DWARF else -1
 
         def value_fn(state: GameStateTemplate):
             return offset * (state.score(Piece.DWARF) - state.score(Piece.TROLL))
 
-        tree = Tree(value_fn=value_fn, state=state, max_depth=2,
+        tree = MiniMaxSearch(value_fn=value_fn, state=state, max_depth=2,
                     max_time=10, optimisation=['AlphaBeta'], display_process=False)
         action = tree.get_best_action()
-        if piece == Piece.DWARF:
-            stats.total_nodes_searched_dwarf += tree.nodes_visited
-        else:
-            stats.total_nodes_searched_troll += tree.nodes_visited
+        stats.update_stats(self.name, add_nodes=tree.nodes_visited)
         return action
 
 
-class Node:
-    def __init__(self, value_fn, action, state: GameStateTemplate
-                 , depth) -> None:
-        self.value_fn = value_fn
-        self.action = action
-        self.state = state
-        self.depth = depth
-        self.__children = self.state.get_subsequent_states()
+# class Node:
+#     def __init__(self, value_fn, action, state: GameStateTemplate
+#                  , depth) -> None:
+#         self.value_fn = value_fn
+#         self.action = action
+#         self.state = state
+#         self.depth = depth
+#         self.__children = self.state.get_subsequent_states()
 
-    def get_children(self) -> 'Generator[Node]':
-        for state, action in self.__children:
-            yield Node(value_fn=self.value_fn, action=action, state=state, depth=self.depth+1)
+#     def get_children(self) -> 'Generator[Node]':
+#         for state, action in self.__children:
+#             yield Node(value_fn=self.value_fn, action=action, state=state, depth=self.depth+1)
 
-    def get_val(self) -> float:
-        return self.value_fn(self.state)
+#     def get_val(self) -> float:
+#         return self.value_fn(self.state)
 
-    def is_leaf(self) -> bool:
-        return self.state.game_over()
+#     def is_terminal(self) -> bool:
+#         return self.state.game_over()
 
 
-class Tree:
+class MiniMaxSearch:
     def __init__(self, value_fn, state, max_depth, max_time,
                  optimisation, display_process=False) -> None:
         """
@@ -88,7 +86,8 @@ class Tree:
         @param optimisation: list of optimisation techniques to use.
 
         """
-        self.root = Node(value_fn=value_fn, state=state, action=None, depth=0)
+        self.root = GameTreeNode(state=state, action=None, depth=0, parent=None)
+        self.value_fn = value_fn
         self.max_depth = max_depth
         self.max_time = max_time
         self.optimisation = optimisation
@@ -106,16 +105,16 @@ class Tree:
         print(f'pruned = {self.pruned}')
         return node.action
 
-    def get_mini(self, node: Node, alpha, beta) -> 'tuple[float, Node]':
+    def get_mini(self, node: GameTreeNode, alpha, beta) -> 'tuple[float, GameTreeNode]':
         self.nodes_visited += 1
         if time.time()-self.start > self.max_time:
             self.timeout = True
-            return node.get_val(), node
+            return self.value_fn(node.state), node
 
-        if node.depth == self.max_depth or node.is_leaf():
-            return node.get_val(), node
+        if node.depth == self.max_depth or node.is_terminal():
+            return self.value_fn(node.state), node
         else:
-            children = node.get_children()
+            children = node.get_all_children_gen()
             mini_value = math.inf
             mini_child = node
             for child in children:
@@ -128,20 +127,18 @@ class Tree:
                     if alpha >= beta:
                         self.pruned += 1
                         break
-            if self.display_process:
-                Display.display_mini(node, mini_value, mini_child)
             return mini_value, mini_child
 
-    def get_maxi(self, node: Node, alpha, beta) -> 'tuple[float, Node]':
+    def get_maxi(self, node: GameTreeNode, alpha, beta) -> 'tuple[float, GameTreeNode]':
         self.nodes_visited += 1
         if time.time()-self.start > self.max_time:
             self.timeout = True
-            return node.get_val(), node
+            return self.value_fn(node.state), node
 
-        if node.depth == self.max_depth or node.is_leaf():
-            return node.get_val(), node
+        if node.depth == self.max_depth or node.is_terminal():
+            return self.value_fn(node.state), node
         else:
-            children = node.get_children()
+            children = node.get_all_children_gen()
             maxi_value = -math.inf
             maxi_child = node
             for child in children:
@@ -154,9 +151,6 @@ class Tree:
                     if alpha >= beta:
                         self.pruned += 1
                         break
-
-            if self.display_process:
-                Display.display_maxi(node, maxi_value, maxi_child)
         return maxi_value, maxi_child
 
 
