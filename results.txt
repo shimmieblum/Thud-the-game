@@ -1,11 +1,147 @@
-time = 5s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
-time = 10s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
-time = 15s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
-time = 20s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
-time = 25s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
-time = 30s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
-time = 35s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
-time = 40s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
-time = 45s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
-time = 50s, wins: {p1 (UnfairMCTSAgent): 0, p2 (RandomAgent): 1, 'draw': 0}
+total games played= 8
+MCTSUnequalAgent 209 vs 183 RandomAgent
 
+MCTSUnequalAgent
+
+	avg move time= 10.03s, avg nodes per turn= 985.07
+	dwarf wins= 4, troll_wins=4
+
+RandomAgent
+
+	avg move time= 0.0s, avg nodes per turn= 0.0
+	dwarf wins= 0, troll_wins=0
+
+        =================================
+
+total games played= 8
+MCTSUnequalAgent 214 vs 180 RandomAgent
+
+MCTSUnequalAgent
+
+	avg move time= 20.03s, avg nodes per turn= 1795.01
+	dwarf wins= 4, troll_wins=4
+
+RandomAgent
+
+	avg move time= 0.01s, avg nodes per turn= 0.0
+	dwarf wins= 0, troll_wins=0
+
+        =================================
+
+total games played= 8
+MCTSUnequalAgent 211 vs 175 RandomAgent
+
+MCTSUnequalAgent
+
+	avg move time= 30.04s, avg nodes per turn= 2635.05
+	dwarf wins= 4, troll_wins=4
+
+RandomAgent
+
+	avg move time= 0.0s, avg nodes per turn= 0.0
+	dwarf wins= 0, troll_wins=0
+
+        =================================
+
+total games played= 8
+MCTSUnequalAgent 226 vs 190 RandomAgent
+
+MCTSUnequalAgent
+
+	avg move time= 40.06s, avg nodes per turn= 3369.4
+	dwarf wins= 4, troll_wins=4
+
+RandomAgent
+
+	avg move time= 0.0s, avg nodes per turn= 0.0
+	dwarf wins= 0, troll_wins=0
+
+        =================================
+
+total games played= 2
+MCTSUnequalAgent 53 vs 47 RandomAgent
+
+MCTSUnequalAgent
+
+	avg move time= 10.04s, avg nodes per turn= 1044.94
+	dwarf wins= 1, troll_wins=1
+
+RandomAgent
+
+	avg move time= 0.0s, avg nodes per turn= 0.0
+	dwarf wins= 0, troll_wins=0
+
+        =================================
+
+total games played= 2
+MCTSUnequalAgent 57 vs 47 RandomAgent
+
+MCTSUnequalAgent
+
+	avg move time= 20.03s, avg nodes per turn= 2119.76
+	dwarf wins= 1, troll_wins=1
+
+RandomAgent
+
+	avg move time= 0.0s, avg nodes per turn= 0.0
+	dwarf wins= 0, troll_wins=0
+
+        =================================
+
+total games played= 2
+MCTSUnequalAgent 53 vs 46 RandomAgent
+
+MCTSUnequalAgent
+
+	avg move time= 30.1s, avg nodes per turn= 2812.39
+	dwarf wins= 1, troll_wins=1
+
+RandomAgent
+
+	avg move time= 0.0s, avg nodes per turn= 0.0
+	dwarf wins= 0, troll_wins=0
+
+        =================================
+
+total games played= 2
+MCTSUnequalAgent 56 vs 46 RandomAgent
+
+MCTSUnequalAgent
+
+	avg move time= 40.08s, avg nodes per turn= 3466.56
+	dwarf wins= 1, troll_wins=1
+
+RandomAgent
+
+	avg move time= 0.0s, avg nodes per turn= 0.0
+	dwarf wins= 0, troll_wins=0
+
+        =================================
+
+total games played= 2
+MCTSUnequalAgent 51 vs 42 RandomAgent
+
+MCTSUnequalAgent
+
+	avg move time= 60.16s, avg nodes per turn= 5286.74
+	dwarf wins= 1, troll_wins=1
+
+RandomAgent
+
+	avg move time= 0.01s, avg nodes per turn= 0.0
+	dwarf wins= 0, troll_wins=0
+
+        =================================
+
+total games played= 2
+MCTSUnequalAgent 51 vs 45 RandomAgent
+
+MCTSUnequalAgent
+
+	avg move time= 90.09s, avg nodes per turn= 7721.1
+	dwarf wins= 1, troll_wins=1
+
+RandomAgent
+
+	avg move time= 0.01s, avg nodes per turn= 0.0
+	dwarf wins= 0, troll_wins=0

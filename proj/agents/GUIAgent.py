@@ -1,4 +1,4 @@
-from proj.model.match import GameStats
+from proj.model.match import MatchStats
 import pygame as pg
 import sys
 import enum
@@ -32,7 +32,7 @@ class GUIAgent(ThudAgentTemplate):
         self.gui = gui
 
     def act(self, state: GameStateTemplate, game_number: int,
-            wins: dict, game_stats: GameStats) -> Action:
+            wins: dict, game_stats: MatchStats) -> Action:
         """ select an action according to the gameState and return it """
         state_dictionary = {
             State.FROM_LOC: self.from_loc,
@@ -71,7 +71,7 @@ class GUIAgent(ThudAgentTemplate):
     def to_loc(self, action: Action, game_state: GameStateTemplate,
                game_number, wins, event) -> Action:
         fx, fy = action.from_loc
-        acceptable_moves = game_state.acceptable_moves(fx, fy)
+        acceptable_moves = [a for a in filter(lambda action: action.from_loc == (fx, fy), self.valid_actions)]
         if event.type != pg.MOUSEBUTTONUP:
             return action
         mouse_position = pg.mouse.get_pos()
@@ -131,13 +131,14 @@ class GUIAgent(ThudAgentTemplate):
         """
 
         self.state = new_state
+        self.valid_actions = game_state.valid_actions()
         if new_state == State.FROM_LOC:
             all_locs = game_state.get_locations(game_state.turn)
             self.gui.display_grid(game_state)
             self.gui.highlight_squares(all_locs, (176, 173, 5))
         elif new_state == State.TO_LOC:
             fx, fy = action.from_loc
-            acceptable_moves = game_state.acceptable_moves(fx, fy)
+            acceptable_moves = (a for a in filter(lambda action: action.from_loc == (fx,fy), self.valid_actions))
             self.gui.display_grid(game_state)
             self.gui.highlight_squares(
                 [x.to_loc for x in acceptable_moves], ((176, 173, 5)))

@@ -44,79 +44,95 @@ class Action:
     def __repr__(self) -> str:
         return str(self)
 
+
 class GameStateTemplate:
+    
+    def __init__(self, prev_action) -> None:
+        self.prev_action = prev_action
     
     @abstractmethod
     def valid_actions(self) -> 'list[Action]':
         pass
-    
+
     @abstractmethod
-    def get_subsequent_states(self)-> 'Generator[GameStateTemplate]':
+    def get_subsequent_states(self) -> 'Generator[GameStateTemplate]':
         pass
-    
+
     @abstractmethod
-    def take_action_on_state(self, action: Action) -> None:
+    def take_action_on_state(self, action: Action) -> 'GameStateTemplate':
         """
         Act directly on a state and return None
         """
         pass
-    
+
     @abstractmethod
     def take_action(self, action: 'Action') -> 'ThudGameState':
         """
         Perform this action on a new state and return new state
         @param: action as triple: ((start loc), (end loc), capture list)
         """
-        pass        
-    
+        pass
+
     @abstractmethod
     def deepcopy(self):
         """
         Return deepcopy of this state
         """
-        pass        
-    
+        pass
+
     @abstractmethod
     def get_locations(self, piece_type) -> 'list[tuple]':
         """
         Get list of locations a given piece can be found at
         """
         pass
-    
+
     @abstractmethod
     def score(self, piece_type):
         """
         Get score of a piece type in this state
         """
         pass
-    
+
     @abstractmethod
     def get_capture_sets(self, end_loc, movetype) -> 'list[set]':
         """get locations that can be captured from this move. Most appropriate for Thud, needed for ui"""
         pass
-    
+
     @abstractmethod
     def game_over(self) -> bool:
         """
         @return: True if this state is an end of game state
         """
         pass
-    
+
     @abstractmethod
     def winner(self) -> Piece:
         """
         @return: the winner
         """
         pass
-    
+
     @abstractmethod
     def get_representation(self):
         """
         Return representation of this state as a 4d NUMPY array.
         """
         pass
-    
-    
+
+    @abstractmethod
+    def results(self, piece):
+        """ return the results at the current state.
+        - accessed by MCTS
+        @param piece: return results in context of a certain piece 
+        """
+        pass
+
+    @abstractmethod
+    def get_actions_from_loc(self, x, y):
+        pass
+
+
 class ThudGameState(GameStateTemplate):
     """
     A gameState object represents the game at the certain point. information contained:
@@ -145,6 +161,7 @@ class ThudGameState(GameStateTemplate):
         @param turns_per_game: the total turns to be played
         @param prev_action: the action taken to reach this state
         """
+        super().__init__(prev_action=prev_action)
         if grid == None:
             self.grid = Grid()
             self.grid.create_start_standard_board()
@@ -154,7 +171,20 @@ class ThudGameState(GameStateTemplate):
         self.turn_number = turn_number
         self.turn = Piece.DWARF if self.turn_number % 2 > 0 else Piece.TROLL
         self.turns_per_game = turns_per_game
-        self.prev_action = prev_action
+
+    @property
+    def _dwarf_score(self) -> int:
+        """
+        @return: the dwarf score
+        """
+        return len(self._dwarves())
+
+    @property
+    def _troll_score(self) -> int:
+        """
+        @return: the troll score
+        """
+        return len(self._trolls()) * 4
 
     def valid_actions(self) -> 'list[Action]':
         """
@@ -165,7 +195,7 @@ class ThudGameState(GameStateTemplate):
         ret_list = []
         starts = self._dwarves() if self.turn is Piece.DWARF else self._trolls()
         for x, y in starts:
-            ret_list.extend(self.__get_actions_from_loc(x, y))
+            ret_list.extend(self.get_actions_from_loc(x, y))
         return ret_list
 
     def get_subsequent_states(self):
@@ -175,7 +205,7 @@ class ThudGameState(GameStateTemplate):
         for action in self.valid_actions():
             yield self.take_action(action), action
 
-    def __get_actions_from_loc(self, x, y):
+    def get_actions_from_loc(self, x, y)->'list[Action]':
         """
         Get all actions from a given location
         @param x
@@ -268,7 +298,7 @@ class ThudGameState(GameStateTemplate):
             if self.grid.get_piece(nx, ny) == Piece.EMPTY:
                 return_list.extend(
                     (Action((x, y), (nx, ny), {(a, b)}, MoveType.TROLL_MOVE)
-                     for (a, b) in self.grid.get_adj(nx,ny)
+                     for (a, b) in self.grid.get_adj(nx, ny)
                      if self.grid.get_piece(a, b) == Piece.DWARF))
                 # can chose not to capture anything
                 return_list.append(
@@ -329,9 +359,9 @@ class ThudGameState(GameStateTemplate):
             piece = self.grid.get_piece(x, y)
         return length
 
-    def take_action_on_state(self, action: Action) -> None:
+    def take_action_on_state(self, action: Action) -> 'ThudGameState':
         """
-        Act directly on a state and return None
+        Act directly on a state and return the (modified) game state
         """
         from_x, from_y = action.from_loc
         to_x, to_y = action.to_loc
@@ -341,6 +371,7 @@ class ThudGameState(GameStateTemplate):
         self.grid.move_piece(from_x, from_y, to_x, to_y)
         self._next_move()
         self.prev_action = action
+        return self
 
     def take_action(self, action: 'Action') -> 'ThudGameState':
         """
@@ -365,19 +396,19 @@ class ThudGameState(GameStateTemplate):
         Return deepcopy of this state
         """
         return ThudGameState(grid=self.grid.deepcopy(), turn_number=self.turn_number,
-                         previous_state=self.previous_state)
+                             previous_state=self.previous_state)
 
     def get_locations(self, piece_type) -> 'list[tuple]':
         """
         Get list of locations a given piece can be found at
         """
         if piece_type == Piece.DWARF:
-             self._dwarves()
+            return self._dwarves()
         elif piece_type == Piece.TROLL:
-            self._trolls() 
-        else: 
+            return self._trolls()
+        else:
             return []
-        
+
     def _dwarves(self):
         """
         @return: list of all locations containing dwarves
@@ -394,21 +425,9 @@ class ThudGameState(GameStateTemplate):
         """
         Get score of a piece type in this state
         """
-        return (self._dwarf_score() if piece_type == Piece.DWARF 
-                else self._troll_score() if piece_type == Piece.TROLL  
-                else 0)        
-    
-    def _dwarf_score(self) -> int:
-        """
-        @return: the dwarf score
-        """
-        return len(self._dwarves())
-
-    def _troll_score(self) -> int:
-        """
-        @return: the troll score
-        """
-        return len(self._trolls()) * 4
+        return (self._dwarf_score if piece_type == Piece.DWARF
+                else self._troll_score if piece_type == Piece.TROLL
+                else 0)
 
     def get_capture_sets(self, end_loc, movetype) -> 'list[set]':
         if movetype == MoveType.DWARF_MOVE:
@@ -439,8 +458,8 @@ class ThudGameState(GameStateTemplate):
         @return: the Piece with the highest score.
         In case of a draw return 'draw'.
         """
-        d_score = self._dwarf_score()
-        t_score = self._troll_score()
+        d_score = self._dwarf_score
+        t_score = self._troll_score
         return Piece.DWARF if d_score > t_score else Piece.TROLL if t_score > d_score else 'draw'
 
     def get_representation(self):
@@ -465,3 +484,11 @@ class ThudGameState(GameStateTemplate):
             return (o.grid == self.grid and
                     self.turn == o.turn and
                     self.turn_number == o.turn_number)
+
+    def results(self, piece:Piece) -> float:
+        """
+        if piece = DWARF the result will be dwarf-score - troll-score
+        @param piece: which piece the result is for 
+        @return: the pieces score vs the opponents score in this state
+        """
+        return piece.value * (self._dwarf_score - self._troll_score)

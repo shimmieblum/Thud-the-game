@@ -1,39 +1,15 @@
-from proj.model.match import play_match
+import csv
+
+from dataclasses import replace
 
 
-from proj.userInterfaces.userInterface import QuietUI, TerminalUI
-from proj.agents.randomAgent import RandomAgent
-from proj.agents.MCTSAgent import UnfairMCTSAgent
+with open('mctsData.txt', 'r') as o:
+    lines = [[x.replace(' ','').replace('\n','') for x in line.split(',')] for line in o.readlines()]
 
-# state = GameState()
-
-# grid = state.grid
-
-# grid.get_representation()
-
-# state.get_representation()
-
-
-def run_test():
-    for t in (50,40,30,20,10):
-
-        player1 = UnfairMCTSAgent('p1', 'UnfairMCTSAgent')
-        player2 = RandomAgent('p2', 'RandomAgent')
-
-        player1.MAX_TIME = t
-        wins = play_match(1, player1, player2, TerminalUI(), game_length=70, delay=0)
-        # winner,_ = filter(lambda a,b: b > 0, wins.items())[0] 
-        with open('results.txt', 'a') as f:
-            f.write(f'time = {t}s, wins: {wins}\n')
-        
-        
-if __name__ == '__main__':
-    run_test()
-    
-
-
-
-
-
+with open('results.csv', 'w', newline='') as o:
+       writer = csv.writer(o, delimiter = ',', )
+       writer.writerows(lines)
+       
+       
 
     

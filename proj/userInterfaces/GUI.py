@@ -243,6 +243,19 @@ Press enter to continue
                     self.render_text(f'   {x} ', GUI.WHITE, top_left=(left, top + 15),
                                      line_height=self.square_height)
 
+    def display_invalid_action(self, action):
+        w,h = pg.display.get_window_size()
+        
+        self.add_text_box(
+            text=f'invalid action\n{action}.\nChoose another\nPress enter to continue',
+            top_left=(w//2-100, h//2-100),
+            width=200, height=200,
+            box_fill=GUI.WHITE,
+            text_colour=GUI.RED,
+            
+            
+        )
+
     def get_coordinates(self, mouse_position):
         x_pos, y_pos = mouse_position
         x_pos -= self.LEFT_MARGIN

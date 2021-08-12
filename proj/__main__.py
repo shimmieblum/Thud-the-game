@@ -21,8 +21,8 @@ def main():
     parser = OptionParser(usage_string)
     parser.add_option('-n', '--bestOf', dest='bestOf', type=int,
                       help='max number of GAMES in match (best of x games)', metavar='games')
-    parser.add_option('-a', '--agents', dest='list_agents', action='store_true', default=False,
-                      help='print a list of available agents [default: %default')
+    # parser.add_option('-a', '--agents', dest='list_agents', action='store_true', default=False,
+    #                   help='print a list of available agents [default: %default')
     parser.add_option('-o', '--player1', dest='player1', type=str, default='default',
                       help='class NAME of player1 agent', metavar='player')
     parser.add_option('-t', '--player2', dest='player2', type=str, default='default',
@@ -36,16 +36,18 @@ def main():
     parser.add_option('-q', '--quit', dest='quiet', action='store_true', default=False,
                       help='quit setting will disable all print outs')
     parser.add_option('-p', '--parameters', dest='parameters', type=str, default='',
-                      help="add parameters for agents. agent 1 using '1: x=1 ...' & agent 2 using '2: y=2 ... ', seperated by a comma")
+                      help=("Add parameters for agents. agent 1 using '1: x=1 ...' & agent 2 using '2: y=2 ... '. Seperate agents with ';'."
+                            + " Seperate parameters with ','. Please note: only numbers can be input with this option"))
     options, other = parser.parse_args()
     if len(other) != 0:
         raise Exception(f"""CLI can't understand {str(other)}""")
-    elif options.list_agents:
-        list_agents()
-        return
+    # elif options.list_agents:
+    #     list_agents()
+    #     return
 
     best_of = options.bestOf
     game_length = options.gameLength
+
 
     # agent1param = agent2param = ''
     # params = str(options.parameters).split(',')
@@ -55,43 +57,40 @@ def main():
     #         agent1param = details[1]
     #     elif details[0].trim() == '1':
     #         agent2param = details[1]
+    Player1 = Player2 = None
 
-    if options.player1 == 'default' or options.player2 == 'default':
-        ui = GUI()
-        if options.player1 == 'default' and options.player2 == 'default':
-            print(1)
-            if random.choice((1, 2)) == 1:
-                player1 = BetterRandomAgent('player1', 'BetterRandomAgent')
-                player2 = GUIAgent('player2', 'GUIAgent')
-                player2.set_gui(ui)
-            else:
-                player2 = BetterRandomAgent('player2', 'BetterRandomAgent')
-                player1 = GUIAgent('player1', 'GUIAgent')
-                player1.set_gui(ui)
-        elif options.player1 == 'default':
-            print(2)
-            player1 = GUIAgent('player1', 'GUIAgent')
-            player1.set_gui(ui)
-            Player2 = load_agent(options.player2, )  # class object
-            player2 = Player2('player 2', options.player2)
-        else:
-            print(3)
-            Player1 = load_agent(options.player1)  # class object
-            player1 = Player1('player 1', options.player1)
-            player2 = GUIAgent('player2', 'GUIAgent')
-            player2.set_gui(ui)
-    else:
-        ui = QuietUI() if options.quiet else GUI() if options.ui else TerminalUI()
+    if options.player1 == 'default' and options.player2 == 'default':
+        choice = random.choice((1, 2))
+        Player1 = BetterRandomAgent if choice == 1 else GUIAgent
+        Player2 = GUIAgent if choice == 1 else BetterRandomAgent
+    elif options.player1 == 'default':
+        Player1 = GUIAgent
+        Player2 = load_agent(options.player2)
+    elif options.player2 == 'default':
         Player1 = load_agent(options.player1)  # class object
-        player1 = Player1('player 1', options.player1)
+        Player2 = GUIAgent
+    else:
+        Player1 = load_agent(options.player1)  # class object
         Player2 = load_agent(options.player2)  # class object
-        player2 = Player2('player 2', options.player2)
+    
+    if GUIAgent in (Player1, Player2): ui = GUI()
+    else: ui = QuietUI() if options.quiet else GUI() if options.ui else TerminalUI()
+
+    args1,args2 = get_params(options.parameters)
+
+    player1 = Player1('player1', Player1.__name__, **args1)
+    player2 = Player2('player2', Player2.__name__, **args2)
+    
+    for player in (player1,player2):
+        if isinstance(player, GUIAgent):
+            player.set_gui(ui)
+              
 
     delay = options.delay
     profiler = cProfile.Profile()
     profiler.enable()
     # cProfile.run('play_match(best_of, player1, player2, ui, delay)')
-    wins = play_match(best_of=best_of, player1=player1,
+    wins = play_match(total_games=best_of, player1=player1,
                       player2=player2, ui=ui, game_length=game_length, delay=delay)
     profiler.disable()
     stats = pstats.Stats(profiler).sort_stats('tottime')
@@ -130,6 +129,35 @@ def load_agent(agentClassName: str):
         except AttributeError:
             continue
     raise Exception(f'No agent name {agentClassName} found in {prefix} module')
+
+
+def get_params(parameter_string):
+    # print(parameter_string)
+    if parameter_string == '': return {},{}
+    agent1params = agent2params = {}
+    parameter_string.strip()
+    params = parameter_string.split(';')
+    # print(params)
+    for param in params:
+        # param = param.strip()
+        split_params = param.split(':')
+        if split_params[0].replace(' ', '') == '1':
+            agent1params = string_to_kwargs(split_params[1])
+        elif split_params[0].replace(' ', '') == '2':
+            agent2params = string_to_kwargs(split_params[1])
+    
+    return agent1params, agent2params
+    
+def string_to_kwargs(string):
+    kwargs = {}
+    if string == '': return kwargs
+    params = string.split(',')
+    for param in params:
+        name,p = tuple(param.split('='))
+        name = name.strip()
+        p = p.strip()
+        kwargs[name] = float(p)
+    return kwargs
 
 
 if __name__ == '__main__':

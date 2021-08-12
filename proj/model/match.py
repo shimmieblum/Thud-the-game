@@ -1,15 +1,15 @@
-from dataclasses import dataclass
-from typing import NoReturn
 
 import time
-from .state import Action, GameStateTemplate
+from .state import ThudGameState
+from .matchStats import MatchStats
 from .enums import Piece
 from ..userInterfaces.userInterface import UserInterfaceTemplate
+import traceback
 
 """=== code for a match ==="""
 
 
-def play_match(best_of, player1, player2, ui: UserInterfaceTemplate, game_length, delay) -> dict:
+def play_match(total_games, player1, player2, ui: UserInterfaceTemplate, game_length, delay) -> dict:
     """
     play a match of a given number of games, alternating each player each game.
     the winner wins the most games.
@@ -20,43 +20,30 @@ def play_match(best_of, player1, player2, ui: UserInterfaceTemplate, game_length
     @game_length: the number of turns per game
     @return: the dictionary of wins for each player
     """
-
+    stats = MatchStats(
+        total_games, player1=player1.agentClassName, player2=player2.agentClassName)
     wins = {player1: 0, player2: 0, 'draw': 0}
     ui.start_message()
     dwarf_player = player1
     troll_player = player2
-    for game_number in range(1, best_of + 1):
+    for game_number in range(1, total_games + 1):
         if ui.quit:
             break
-        __play_game(dwarf_player, troll_player, ui, game_length,
-                    game_number, best_of, wins, delay)
-        if __match_over(wins, best_of):
-            break
-        else:
-            dwarf_player, troll_player = troll_player, dwarf_player
-    ui.end_of_match(wins, best_of)
+        __play_game(dwarf_player=dwarf_player, troll_player=troll_player, 
+                    ui=ui, game_length=game_length, game_number=game_number, 
+                    total_games=total_games, wins=wins, delay=delay, 
+                    stats=stats)
+        dwarf_player, troll_player = troll_player, dwarf_player
+    ui.end_of_match(wins, total_games)
+    save_stats(stats)
     return wins
-
-
-def __match_over(wins, num_games) -> bool:
-    """ check if one player has won the match according the the total match length 
-    @param wins: the win dictionary
-    @param num_games: total number of games to be played
-    @return: whether the match is over or not
-    """
-    games = num_games - wins['draw']
-    for player, num_wins in wins.items():
-        if player != 'draw' and num_wins > games/2:
-            return True
-    else:
-        return False
 
 
 """=== code for a game ==="""
 
 
 def __play_game(dwarf_player, troll_player, ui: UserInterfaceTemplate,
-                game_length, game_number, best_of, wins, delay):
+                game_length, game_number, total_games, wins, delay, stats: MatchStats):
     """
     play a single game, starting with the dwarf player. 
     each player makes its move and this continues until specified number of moves taken or one type has no pieces left
@@ -69,13 +56,8 @@ def __play_game(dwarf_player, troll_player, ui: UserInterfaceTemplate,
     @param wins: win dictionary
     """
     # initial state
-    state = GameStateTemplate(turns_per_game=game_length)
-    # init stats
-    stats = GameStats(game_num=game_number, total_games=best_of,
-                      troll_agent=troll_player.agentClassName,
-                      dwarf_agent=dwarf_player.agentClassName,
-                      total_turns=game_length)
-    # create players dicrtionary
+    state = ThudGameState(turns_per_game=game_length)
+    # create players dictionary
     players = {Piece.DWARF: dwarf_player,
                Piece.TROLL: troll_player, 'draw': 'draw'}
     ui.new_game(dwarf_player, troll_player, game_length, game_number, wins)
@@ -86,75 +68,35 @@ def __play_game(dwarf_player, troll_player, ui: UserInterfaceTemplate,
         piece = state.turn
         ui.begin_turn(state=state, turn_number=state.turn_number,
                       game_length=game_length, game_number=game_number,
-                      best_of=best_of, wins=wins, dwarf_player=dwarf_player,
-                      troll_player=troll_player, action=action)
-        action = players[state.turn].act(state, game_number, wins, stats)
-        end_time = time.time() - start_time
+                      best_of=total_games, wins=wins, dwarf_player=dwarf_player,
+                      troll_player=troll_player, prev_action=action)
+        player = players[state.turn]
+        action = player.act(state, game_number, wins, stats)
+        if action not in state.valid_actions(): 
+            # if this action is invalid, don't allow the action to take place. 
+            # instead continue, requiring a new action to be taken. 
+            ui.display_invalid_action(action)
+            continue
+        time_taken = time.time() - start_time
         # update time for the turn for the correct type
-        if piece == Piece.DWARF:
-            stats.dwarf_time_total += end_time
-        else:
-            stats.troll_time_total += end_time
+        stats.update_stats(player_name=player.name,
+                           add_time=time_taken, add_move=1)
         # generate new state
         state = state.take_action(action)
-        
-    stats.troll_score = state.score(Piece.TROLL)
-    stats.dwarf_score = state.score(Piece.DWARF)
+
     winning_piece = state.winner()
+
+    stats.update_stats(players[Piece.DWARF].name, add_score=state.score(Piece.DWARF),
+                       add_wins_dwarf=1 if winning_piece == Piece.DWARF else 0)
+    stats.update_stats(players[Piece.TROLL].name, add_score=state.score(Piece.TROLL),
+                       add_wins_troll=1 if winning_piece == Piece.TROLL else 0)
 
     winner = players[winning_piece]
     wins[winner] += 1
     ui.end_game(wins, winning_piece)
 
+
+def save_stats(stats):
     with open('results.txt', 'a') as o:
-        o.write('\n')
+        o.write('\n\n        =================================\n\n')
         o.write(repr(stats))
-
-@dataclass
-class GameStats:
-
-    """
-    This class is used to store the following stats about a game which is then saved to a designated text file:
-
-    - game_num (int)
-    - total_games (int)
-    - nodes_searched (int)
-    - time_per_move (float)
-    - agent_type (str)
-    - opponent_type (str)
-    - agent_piece (Piece)
-    - score (int)
-    - opponent_score (int)
-    """
-    game_num: int
-    total_games: int
-    troll_agent: str
-    dwarf_agent: str
-    total_turns: int
-
-    dwarf_score: int = 0
-    troll_score: int = 0
-
-    total_nodes_searched_dwarf: int = 0
-    total_nodes_searched_troll: int = 0
-    dwarf_time_total: float = 0
-    troll_time_total: float = 0
-
-    def __init__(self, game_num: int, total_games: int, troll_agent: str, dwarf_agent: str, total_turns: int) -> None:
-        self.game_num = game_num
-        self.total_games = total_games
-        self.troll_agent = troll_agent
-        self.dwarf_agent = dwarf_agent
-        self.total_turns = total_turns
-
-    def dwarf_nodes_searched_per_move(self) -> float:
-        return self.total_nodes_searched_dwarf / (self.total_turns / 2)
-
-    def troll_nodes_searched_per_move(self) -> float:
-        return self.total_nodes_searched_troll / (self.total_turns / 2)
-
-    def dwarf_time_per_move(self) -> float:
-        return self.dwarf_time_total / (self.total_turns / 2)
-
-    def troll_time_per_move(self) -> float:
-        return self.troll_time_total / (self.total_turns / 2)

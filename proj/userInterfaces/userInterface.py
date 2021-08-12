@@ -6,6 +6,8 @@ from ..model.state import  GameStateTemplate
 
 class UserInterfaceTemplate:
 
+
+    
     def __init__(self) -> None:
         self.quit = False
 
@@ -13,6 +15,10 @@ class UserInterfaceTemplate:
     def start_message(self):
         pass
 
+    @abstractmethod
+    def display_invalid_action(self, action):
+        pass
+    
     @abstractmethod
     def end_of_match(self, wins, best_of):
         pass
@@ -67,14 +73,16 @@ trolls: {troll_player}""")
         dwarves = state.get_locations(Piece.DWARF)
         trolls = state.get_locations(Piece.TROLL)
         print(prev_action)
-        print(f'dwarves = {len(dwarves)}, trolls = {len(trolls)}')
-        print(f'captured = {state.captured}')
+        print(f'dwarf score = {state.score(Piece.DWARF)}, troll score = {state.score(Piece.TROLL)}')
         print('\n'.join(' '.join(d[x] for x in y) for y in state.grid.board))
 
     def end_game(self, wins, winner):
         print(f'winner is {winner}')
         print('end of game')
         pass
+    
+    def display_invalid_action(self, action):
+        print(f'Invalid action {action}. chose a new action')
 
 
 class QuietUI(UserInterfaceTemplate):
@@ -94,6 +102,9 @@ class QuietUI(UserInterfaceTemplate):
     def new_game(self, dwarf_player, troll_player, game_length, game_number, wins):
         print('\n================\n')
         print(f'game number {game_number}')
+        
+    def display_invalid_action(self, action):
+        print(f'invalid action {action} chosen, new action will be taken')
 
     def begin_turn(self, state, turn_number, game_length, game_number, best_of, wins, dwarf_player, troll_player, prev_action):
         pass
