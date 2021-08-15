@@ -1,16 +1,13 @@
 from abc import abstractmethod
 import math
-from time import time
+import time
 from typing import Callable
-from proj.model.matchStats import MatchStats
-from proj.model.enums import Piece
-import traceback
 import random
 from proj.agents.gameTreeNode import GameTreeNode
 from dataclasses import dataclass
 
-from proj.agents.template import ThudAgentTemplate
-from proj.model.state import Action, GameStateTemplate, ThudGameState
+from proj.agents.template import AgentTemplate
+from proj.gameEngine.state import Action, GameStateTemplate, ThudGameState
 
 
 
@@ -80,14 +77,14 @@ class MCTS:
         except:
             return node
 
-    def ucb(self, node: 'Node'):
+    def ucb(self, node: 'GameTreeNode'):
         return node.q + self.UCB_CONSTANT * math.sqrt(math.log(node.parent.n) / node.n)
 
     def simulate(self, node):
         state = self.simulation_policy(node.state.deepcopy())
         return state.results(node.state.turn)
 
-    def select_unvisited(self, node: 'Node'):
+    def select_unvisited(self, node: 'GameTreeNode'):
         child = node.expand_new_node()
         return child
 
@@ -136,7 +133,7 @@ class SearchStats:
 
 
 
-class MCTSAgentTemplate(ThudAgentTemplate):
+class MCTSAgentTemplate(AgentTemplate):
     def __init__(self, name, agentClassName, max_time=10, max_depth=math.inf) -> None:
         super().__init__(name, agentClassName)
         self.MCTS = MCTS(max_time=max_time, max_depth=max_depth,
@@ -151,12 +148,12 @@ class MCTSAgentTemplate(ThudAgentTemplate):
         """
         pass
 
-    def act(self, state: GameStateTemplate, game_number: int, wins: dict, stats: MatchStats) -> Action:
+    def act(self, state: GameStateTemplate, game_number: int, wins: dict, stats) -> Action:
         # currently, a new root is created each calll.
         # this can be improved by saving the root as a class variable
         # and finding the new node each time an action is taken
         # if self.root == None:
-        self.root = Node(state=state, action=None, depth=0, parent=None)
+        self.root = GameTreeNode(state=state, action=None, depth=0, parent=None)
         best_child = self.MCTS.search(self.root)
         nodes_searched = self.MCTS.nodes_searched
         stats.update_stats(self.name, add_nodes=nodes_searched)

@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from typing import Generator
-from proj.model.state import Action, ThudGameState
+from proj.gameEngine.state import Action, ThudGameState
 
 
 class Node:

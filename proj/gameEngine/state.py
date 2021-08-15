@@ -132,6 +132,9 @@ class GameStateTemplate:
     def get_actions_from_loc(self, x, y):
         pass
 
+    @abstractmethod
+    def get_player_info(self, piece)-> str:
+        pass
 
 class ThudGameState(GameStateTemplate):
     """
@@ -492,3 +495,10 @@ class ThudGameState(GameStateTemplate):
         @return: the pieces score vs the opponents score in this state
         """
         return piece.value * (self._dwarf_score - self._troll_score)
+
+    def get_player_info(self, piece)-> str:
+        info = []
+        if piece == Piece.DWARF:
+            info = [
+                'DWARF', 
+                '']

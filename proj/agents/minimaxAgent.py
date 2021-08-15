@@ -1,21 +1,21 @@
 
+from proj.prog.matchStats import MatchStats
 from proj.agents.gameTreeNode import GameTreeNode
-from proj.model.matchStats import MatchStats
 from typing import Generator
-from proj.model.enums import Piece
-from proj.model.state import Action, GameStateTemplate
-from proj.agents.template import ThudAgentTemplate
+from proj.gameEngine.enums import Piece
+from proj.gameEngine.state import Action, GameStateTemplate
+from proj.agents.template import AgentTemplate
 
 import math
 import time
 
 
-class MiniMaxAgent(ThudAgentTemplate):
+class MiniMaxAgent(AgentTemplate):
     def __init__(self, name, agentClassName) -> None:
         super().__init__(name, agentClassName)
 
     def act(self, state: GameStateTemplate, game_number: int,
-            wins: dict, stats: MatchStats) -> Action:
+            wins: dict, stats) -> Action:
         piece = state.turn
         offset = 1 if state.turn == Piece.DWARF else -1
 
@@ -32,7 +32,7 @@ class MiniMaxAgent(ThudAgentTemplate):
         return action
 
 
-class MiniMaxABAgent(ThudAgentTemplate):
+class MiniMaxABAgent(AgentTemplate):
     def __init__(self, name, agentClassName) -> None:
         super().__init__(name, agentClassName)
 

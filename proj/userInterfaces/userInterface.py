@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
-from ..model.enums import Piece
-from ..model.state import  GameStateTemplate
+from ..gameEngine.enums import Piece
+from ..gameEngine.state import  GameStateTemplate
 
 
 class UserInterfaceTemplate:
@@ -12,7 +12,7 @@ class UserInterfaceTemplate:
         self.quit = False
 
     @abstractmethod
-    def start_message(self):
+    def start_message(self, welcome_message):
         pass
 
     @abstractmethod
@@ -44,6 +44,9 @@ class TerminalUI(UserInterfaceTemplate):
     """
     Terminal UI for thud"""
 
+    def start_message(self, welcome_message):
+        print(welcome_message)
+    
     def end_game(self, wins, winner):
         pass
 
@@ -86,9 +89,10 @@ trolls: {troll_player}""")
 
 
 class QuietUI(UserInterfaceTemplate):
-
-    def start_message(self):
-        pass
+    
+    
+    def start_message(self, welcome_message):
+        print(welcome_message)
 
     def end_game(self, wins, winner):
         print('game over')

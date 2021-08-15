@@ -1,11 +1,11 @@
 
-from ..model.state import GameStateTemplate, Action
-from ..agents.template import ThudAgentTemplate
+from ..gameEngine.state import GameStateTemplate, Action
+from ..agents.template import AgentTemplate
 
 import random
 
 
-class RandomAgent(ThudAgentTemplate):
+class RandomAgent(AgentTemplate):
     """
     This Agent will chose a random move from the list of valid actions
     """
@@ -20,7 +20,7 @@ class RandomAgent(ThudAgentTemplate):
         return random.choice(actions)
 
 
-class BetterRandomAgent(ThudAgentTemplate):
+class BetterRandomAgent(AgentTemplate):
     """
     This Agent will select the move that will capture the most opponents.
     If no opponents can be captured a random choice is made 

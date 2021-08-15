@@ -1,15 +1,27 @@
 
 import time
-from .state import ThudGameState
+from proj.gameEngine.state import ThudGameState
 from .matchStats import MatchStats
-from .enums import Piece
-from ..userInterfaces.userInterface import UserInterfaceTemplate
-import traceback
+from proj.gameEngine.enums import Piece
+from proj.userInterfaces.userInterface import UserInterfaceTemplate
 
 """=== code for a match ==="""
 
+welcome_message = r"""
 
-def play_match(total_games, player1, player2, ui: UserInterfaceTemplate, game_length, delay) -> dict:
+Welcome to
+ ________   _   _   _   _   ____     _
+|__    __| | |_| | | | | | |  _ \   | | 
+   |  |    |  _  | | |_| | | |_) |  |_|
+   |__|    |_| |_| |_____| |____/   (=)
+ _______________________________________
+|_______________________________________|
+By Trevor Truran 
+Inspired by Terry Prachett
+"""
+    
+
+def play_match(total_games, player1, player2, ui: UserInterfaceTemplate, game_length) -> dict:
     """
     play a match of a given number of games, alternating each player each game.
     the winner wins the most games.
@@ -20,10 +32,11 @@ def play_match(total_games, player1, player2, ui: UserInterfaceTemplate, game_le
     @game_length: the number of turns per game
     @return: the dictionary of wins for each player
     """
+    
     stats = MatchStats(
         total_games, player1=player1.agentClassName, player2=player2.agentClassName)
     wins = {player1: 0, player2: 0, 'draw': 0}
-    ui.start_message()
+    ui.start_message(welcome_message)
     dwarf_player = player1
     troll_player = player2
     for game_number in range(1, total_games + 1):
@@ -31,11 +44,11 @@ def play_match(total_games, player1, player2, ui: UserInterfaceTemplate, game_le
             break
         __play_game(dwarf_player=dwarf_player, troll_player=troll_player, 
                     ui=ui, game_length=game_length, game_number=game_number, 
-                    total_games=total_games, wins=wins, delay=delay, 
+                    total_games=total_games, wins=wins,  
                     stats=stats)
         dwarf_player, troll_player = troll_player, dwarf_player
     ui.end_of_match(wins, total_games)
-    save_stats(stats)
+    __save_stats(stats)
     return wins
 
 
@@ -43,7 +56,7 @@ def play_match(total_games, player1, player2, ui: UserInterfaceTemplate, game_le
 
 
 def __play_game(dwarf_player, troll_player, ui: UserInterfaceTemplate,
-                game_length, game_number, total_games, wins, delay, stats: MatchStats):
+                game_length, game_number, total_games, wins, stats: MatchStats):
     """
     play a single game, starting with the dwarf player. 
     each player makes its move and this continues until specified number of moves taken or one type has no pieces left
@@ -96,7 +109,8 @@ def __play_game(dwarf_player, troll_player, ui: UserInterfaceTemplate,
     ui.end_game(wins, winning_piece)
 
 
-def save_stats(stats):
+def __save_stats(stats):
     with open('results.txt', 'a') as o:
         o.write('\n\n        =================================\n\n')
         o.write(repr(stats))
+

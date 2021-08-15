@@ -1,6 +1,6 @@
 import unittest
-from ..model.grid import Grid
-from ..model.enums import Piece
+from ..gameEngine.grid import Grid
+from ..gameEngine.enums import Piece
 
 class TestGrid(unittest.TestCase):
 

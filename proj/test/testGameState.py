@@ -1,8 +1,8 @@
 
 import unittest
 
-from ..model.enums import Piece
-from ..model.state import Action, ThudGameState, MoveType
+from ..gameEngine.enums import Piece
+from ..gameEngine.state import Action, ThudGameState, MoveType
 
 
 class TestGameState(unittest.TestCase):

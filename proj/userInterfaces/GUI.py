@@ -1,10 +1,12 @@
 import enum
+import sys
+from proj.agents.gameTree import Tree
 
 import pygame as pg
-from pygame.constants import KEYDOWN, K_RETURN, QUIT
+from pygame.constants import KEYDOWN, K_KP_ENTER, K_RETURN, QUIT
 
-from proj.model.enums import Piece
-from proj.model.state import GameStateTemplate
+from proj.gameEngine.enums import Piece
+from proj.gameEngine.state import GameStateTemplate
 from .userInterface import UserInterfaceTemplate
 
 
@@ -22,6 +24,8 @@ class GUI(UserInterfaceTemplate):
     """ 
     Pygame UI for thud
     """
+    
+    
 
     DWARF_COLOUR = BLUE = (0, 0, 255)
     TROLL_COLOUR = RED = (255, 0, 0)
@@ -41,11 +45,29 @@ class GUI(UserInterfaceTemplate):
         self.highlights = []
         self.info_text = ''
 
-    def start_message(self):
-        font = pg.font.SysFont(None, 24)
-        img = font.render('hello', True, (0, 0, 255))
-        self.surface.blit(img, (20, 20))
-        pg.display.flip()
+    def start_message(self, message):
+        width, height = pg.display.get_window_size()
+        img = pg.image.load(r'proj\userInterfaces\THUD logo.png')
+        self.surface.blit(pg.transform.smoothscale(img, (width-40,300)), dest=(20,20))
+        text = ('By Trevor Truran\nInspired by Terry Prachett\nPress Enter to Continue')
+        self.add_text_box(
+            text= text,
+            top_left=(20, 320),
+            width=width-40,
+            height=100,
+            box_fill=GUI.WHITE,
+            text_colour=GUI.RED,
+            text_size=40
+            )
+        pg.display.flip()        
+        carry_on = False
+        while not carry_on:
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    quit()
+                elif event.type == pg.KEYDOWN and event.key == K_RETURN:
+                    carry_on = True
+        
 
     def end_of_match(self, wins, best_of):
         self.surface.fill((0, 0, 0))
@@ -195,7 +217,7 @@ Press enter to continue
             [prev_action.to_loc, prev_action.from_loc], (17, 189, 77))
         self.highlight_squares((x for x in prev_action.capture), (42, 74, 53))
 
-    def render_text(self, text, colour, top_left, line_height, text_size=24) -> int:
+    def render_text(self, text, colour, top_left, line_height, text_size=24 ) -> int:
         tx, ty = top_left
         line_height
         for line in text.splitlines():
@@ -252,8 +274,6 @@ Press enter to continue
             width=200, height=200,
             box_fill=GUI.WHITE,
             text_colour=GUI.RED,
-            
-            
         )
 
     def get_coordinates(self, mouse_position):

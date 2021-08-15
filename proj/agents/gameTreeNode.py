@@ -6,7 +6,7 @@ from typing import Callable, Generator
 from dataclasses import dataclass
 
 import time
-from proj.model.state import Action, GameStateTemplate
+from proj.gameEngine.state import Action, GameStateTemplate
 
 class GameTreeNode:
 

@@ -1,11 +1,10 @@
 
 from abc import abstractmethod
-from proj.model.matchStats import MatchStats
 
-from ..model.state import GameStateTemplate, Action
+from ..gameEngine.state import GameStateTemplate, Action
 
 
-class ThudAgentTemplate:
+class AgentTemplate:
     # agents_filename = "agents.txt"
 
     def __init__(self, name, agentClassName) -> None:
@@ -27,6 +26,6 @@ class ThudAgentTemplate:
 
     @abstractmethod
     def act(self, state: GameStateTemplate, game_number: int,
-            wins: dict, stats: MatchStats) -> Action:
+            wins: dict, stats) -> Action:
         """ select an action according to the gameState and return it """
         pass

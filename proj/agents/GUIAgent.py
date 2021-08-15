@@ -1,4 +1,3 @@
-from proj.model.match import MatchStats
 import pygame as pg
 import sys
 import enum
@@ -6,8 +5,8 @@ from pygame.constants import K_RETURN
 from setuptools.namespaces import flatten
 
 
-from proj.model.state import Action, GameStateTemplate, MoveType
-from .template import ThudAgentTemplate
+from proj.gameEngine.state import Action, GameStateTemplate, MoveType
+from .template import AgentTemplate
 from ..userInterfaces.GUI import GUI
 
 
@@ -18,7 +17,7 @@ class State(enum.Enum):
     COMPLETE = 4
 
 
-class GUIAgent(ThudAgentTemplate):
+class GUIAgent(AgentTemplate):
     """
     This Agent is a user Agent.
     Using 
@@ -32,7 +31,7 @@ class GUIAgent(ThudAgentTemplate):
         self.gui = gui
 
     def act(self, state: GameStateTemplate, game_number: int,
-            wins: dict, game_stats: MatchStats) -> Action:
+            wins: dict, game_stats) -> Action:
         """ select an action according to the gameState and return it """
         state_dictionary = {
             State.FROM_LOC: self.from_loc,
