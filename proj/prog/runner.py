@@ -59,10 +59,13 @@ def CLI():
     Player1 = GUIAgent if options.player1 == 'default' else load_agent(options.player1)  # class object
     Player2 = GUIAgent if options.player2 == 'default' else load_agent(options.player2)  # class object
     
-    if GUIAgent in (Player1, Player2): ui = GUI()
-    else: ui = QuietUI() if options.quiet else GUI() if options.ui else TerminalUI()
+    if GUIAgent in (Player1, Player2) or options.ui: 
+        ui = GUI()
+    else: 
+        ui = QuietUI() if options.quiet else TerminalUI()
     
     args1,args2 = get_params(options.parameters)
+
 
     player1 = Player1('player1', Player1.__name__, **args1)
     player2 = Player2('player2', Player2.__name__, **args2)
@@ -116,14 +119,11 @@ def load_agent(agentClassName: str):
 
 
 def get_params(parameter_string):
-    # print(parameter_string)
     if parameter_string == '': return {},{}
     agent1params = agent2params = {}
     parameter_string.strip()
     params = parameter_string.split(';')
-    # print(params)
     for param in params:
-        # param = param.strip()
         split_params = param.split(':')
         if split_params[0].replace(' ', '') == '1':
             agent1params = string_to_kwargs(split_params[1])
