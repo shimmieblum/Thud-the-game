@@ -97,7 +97,7 @@ class GUIAgent(AgentTemplate):
         if event.type != pg.MOUSEBUTTONUP and event.type:
             return action
         mouse_position = pg.mouse.get_pos()
-        if self.gui.ok_button(mouse_position):
+        if self.gui.ok_button_click(mouse_position):
             self.change_state(action, State.COMPLETE, game_state)
         else:
             x, y = self.gui.get_coordinates(mouse_position)

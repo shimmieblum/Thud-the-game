@@ -24,8 +24,6 @@ class GUI(UserInterfaceTemplate):
     """ 
     Pygame UI for thud
     """
-    
-    
 
     DWARF_COLOUR = BLUE = (0, 0, 255)
     TROLL_COLOUR = RED = (255, 0, 0)
@@ -48,18 +46,19 @@ class GUI(UserInterfaceTemplate):
     def start_message(self, message):
         width, height = pg.display.get_window_size()
         img = pg.image.load(r'proj\userInterfaces\THUD logo.png')
-        self.surface.blit(pg.transform.smoothscale(img, (width-40,300)), dest=(20,20))
+        self.surface.blit(pg.transform.smoothscale(
+            img, (width-40, 300)), dest=(20, 20))
         text = ('By Trevor Truran\nInspired by Terry Prachett\nPress Enter to Continue')
         self.add_text_box(
-            text= text,
+            text=text,
             top_left=(20, 320),
             width=width-40,
             height=100,
             box_fill=GUI.WHITE,
             text_colour=GUI.RED,
             text_size=40
-            )
-        pg.display.flip()        
+        )
+        pg.display.flip()
         carry_on = False
         while not carry_on:
             for event in pg.event.get():
@@ -67,19 +66,12 @@ class GUI(UserInterfaceTemplate):
                     quit()
                 elif event.type == pg.KEYDOWN and event.key == K_RETURN:
                     carry_on = True
-        
 
     def end_of_match(self, wins, best_of):
         self.surface.fill((0, 0, 0))
         winstr = '\n'.join((str(x) for x in wins.items()))
         winner = max(wins.keys(), key=lambda x: wins[x])
-        text = f"""
-End of Match!!
-{winstr}
-MATCH OUT OF: {best_of} 
-winner is: {winner}
-Press enter to continue
-"""
+        text = f"\nEnd of Match!!\n{winstr}\nMATCH OUT OF: {best_of}\nwinner is: {winner}\nPress enter to continue"
         w, h = pg.display.get_window_size()
         self.render_text(text, (255, 255, 255), (20, h // 2 - 50), 50, 50)
         pg.display.flip()
@@ -94,13 +86,7 @@ Press enter to continue
     def end_game(self, wins, winner):
         self.surface.fill((0, 0, 0))
         winstr = '\n'.join((str(x) for x in wins.items()))
-        text = f"""
-GAME OVER!!
-winner was {winner}
-{winstr}
-
-Press enter to continue
-"""
+        text = f"\nGAME OVER!!\nwinner was {winner}\n{winstr}\nPress enter to continue"
         w, h = pg.display.get_window_size()
         self.render_text(text, (255, 255, 255), (20, h // 2 - 50), 50, 50)
         pg.display.flip()
@@ -126,23 +112,8 @@ Press enter to continue
         self.surface.blit(img, (20, 20))
         pg.display.flip()
 
-    #     def update_info_text(self, game_number, best_of, wins, dwarf_player, troll_player, state, turn_number, game_length, prev_action):
-
-    #         player1 = list(wins.items())[0]
-    #         player2 = list(wins.items())[1]
-
-    #         self.info_text = f"""
-    # game number: {game_number} / {best_of}
-    # wins: {player1}   ||   {player2}
-    # dwarves = {dwarf_player}    ||  trolls = {troll_player}
-    # captured: dwarves - {state.get_captured(Piece.DWARF)}   ||   trolls - {state.get_captured(Piece.TROLL)}
-    # turn number: {turn_number} / {game_length}
-    # turn: {state.turn}
-    # previous action: {prev_action}
-    #         """
-
-    def update_info(self, game_number, best_of, wins, dwarf_player, troll_player, turn_number, game_length,
-                    prev_action):
+    def update_info(self, game_number, best_of, wins, dwarf_player, troll_player, 
+                    turn_number, game_length, prev_action):
         self.dwarf_name = dwarf_player.name
         self.dwarf_agent_type = dwarf_player.agentClassName
         self.dwarf_wins = wins[dwarf_player]
@@ -217,7 +188,7 @@ Press enter to continue
             [prev_action.to_loc, prev_action.from_loc], (17, 189, 77))
         self.highlight_squares((x for x in prev_action.capture), (42, 74, 53))
 
-    def render_text(self, text, colour, top_left, line_height, text_size=24 ) -> int:
+    def render_text(self, text, colour, top_left, line_height, text_size=24) -> int:
         tx, ty = top_left
         line_height
         for line in text.splitlines():
@@ -266,8 +237,8 @@ Press enter to continue
                                      line_height=self.square_height)
 
     def display_invalid_action(self, action):
-        w,h = pg.display.get_window_size()
-        
+        w, h = pg.display.get_window_size()
+
         self.add_text_box(
             text=f'invalid action\n{action}.\nChoose another\nPress enter to continue',
             top_left=(w//2-100, h//2-100),
@@ -318,9 +289,10 @@ Press enter to continue
         colour = (100, 100, 100)
         self.ok_rect = self.add_text_box("OK", (x, y), width, height, colour, (255, 255, 255),
                                          verticle_alignment=Alignment.TOP,
-                                         horizontal_alignment=Alignment.CENTRE, autosize_text=True)
+                                         horizontal_alignment=Alignment.CENTRE,
+                                         autosize_text=True)
 
-    def ok_button(self, mouse_position):
+    def ok_button_click(self, mouse_position) -> bool:
         return self.ok_rect.collidepoint(mouse_position)
 
     def add_text_box(self, text, top_left, width, height, box_fill, text_colour, font=pg.font.SysFont,

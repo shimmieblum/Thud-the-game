@@ -163,7 +163,7 @@ class MCTSAgentTemplate(AgentTemplate):
 
 
 class MCTSRandAgent(MCTSAgentTemplate):
-    def __init__(self, name, agentClassName, max_time, max_depth) -> None:
+    def __init__(self, name, agentClassName, max_time=10, max_depth=math.inf) -> None:
         super().__init__(name, agentClassName, max_time=max_time, max_depth=max_depth)
 
     def simulation_policy(self, state: GameStateTemplate) -> GameStateTemplate:
@@ -174,7 +174,7 @@ class MCTSRandAgent(MCTSAgentTemplate):
 
 
 class MCTSUnequalAgent(MCTSAgentTemplate):
-    def __init__(self, name, agentClassName, max_time, max_depth) -> None:
+    def __init__(self, name, agentClassName, max_time=10, max_depth=math.inf) -> None:
         super().__init__(name, agentClassName, max_time=max_time, max_depth=max_depth)
 
     def simulation_policy(self, state: GameStateTemplate) -> Action:
