@@ -4,13 +4,11 @@ import numpy as np
 
 from .enums import Piece
 
-'''
+"""
 Hexagonal grid for game of thud
 grid is a 15x15 array
 grid has accessor methods for the board
-'''
-
-
+"""
 class Grid:
     def __init__(self, **kwargs) -> None:
         """
@@ -39,31 +37,34 @@ class Grid:
 
     def get_representation(self) -> np.ndarray:
         dx, dy = self.dimensions
-        dwarves = [[1 if (x, y) in self.pieces[Piece.DWARF] else 0 for x in range(dx)] for y in range(dy)]
-        trolls = [[1 if (x, y) in self.pieces[Piece.TROLL] else 0 for x in range(dx)] for y in range(dy)]
+        dwarves = [[1 if (x, y) in self.pieces[Piece.DWARF]
+                    else 0 for x in range(dx)] for y in range(dy)]
+        trolls = [[1 if (x, y) in self.pieces[Piece.TROLL]
+                   else 0 for x in range(dx)] for y in range(dy)]
         return [dwarves, trolls]
 
     def create_start_standard_board(self):
         """ set up a standard board"""
         board = [
-            [-1, -1, -1, -1, -1, 1, 1, 0, 1, 1, -1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, 1, 0, 0, 0, 0, 0, 1, -1, -1, -1, -1],
-            [-1, -1, -1, 1, 0, 0, 0, 0, 0, 0, 0, 1, -1, -1, -1],
-            [-1, -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, -1],
-            [-1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1],
-            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            [1, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 1],
-            [0, 0, 0, 0, 0, 0, 2, -1, 2, 0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 1],
-            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            [-1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1],
-            [-1, -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, -1],
-            [-1, -1, -1, 1, 0, 0, 0, 0, 0, 0, 0, 1, -1, -1, -1],
-            [-1, -1, -1, -1, 1, 0, 0, 0, 0, 0, 1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, -1, 1, 1, 0, 1, 1, -1, -1, -1, -1, -1],
+            ['-','-','-','-','-',  1,  1,  0,  1,  1,'-','-','-','-','-'],
+            ['-','-','-','-',  1,  0,  0,  0,  0,  0,  1,'-','-','-','-'],
+            ['-','-','-',  1,  0,  0,  0,  0,  0,  0,  0,  1,'-','-','-'],
+            ['-','-',  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,'-','-'],
+            ['-',  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,'-'],
+            [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1],
+            [  1,  0,  0,  0,  0,  0, -1, -1, -1,  0,  0,  0,  0,  0,  1],
+            [  0,  0,  0,  0,  0,  0, -1,'-', -1,  0,  0,  0,  0,  0,  0],
+            [  1,  0,  0,  0,  0,  0, -1, -1, -1,  0,  0,  0,  0,  0,  1],
+            [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1],
+            ['-',  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,'-'],
+            ['-','-',  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,'-','-'],
+            ['-','-','-',  1,  0,  0,  0,  0,  0,  0,  0,  1,'-','-','-'],
+            ['-','-','-','-',  1,  0,  0,  0,  0,  0,  1,'-','-','-','-'],
+            ['-','-','-','-','-',  1,  1,  0,  1,  1,'-','-','-','-','-'],
         ]
 
-        self.board = list(map(lambda row: list(map(lambda s: Piece(s), row)), board))
+        self.board = list(map(lambda row: list(
+            map(lambda s: Piece(s), row)), board))
 
         for x, row in enumerate(self.board):
             for y, content in enumerate(row):
@@ -71,16 +72,16 @@ class Grid:
         self.dimensions = (len(self.board), len(self.board[0]))
 
     def board_from_template(self, template):
+        """
+        create a grid with input board 
+        - board = N*M array containing pieces in given location
+        """
         self.pieces = self.pieces = {
             Piece.DWARF: [],
             Piece.TROLL: [],
             Piece.EMPTY: [],
             Piece.NON_PLAYABLE: []
         }
-        '''
-        create a grid with input board 
-        board = N*M array containing pieces in given location
-        '''
         self.board = template
         self.dimensions = len(template), len(template[0])
         for x, row in enumerate(self.board):
@@ -113,7 +114,8 @@ class Grid:
         Add the relevant pieces to the dictionary
         @return the replaced piece
         """
-        if piece == Piece.NON_PLAYABLE: return Piece.NON_PLAYABLE
+        if piece == Piece.NON_PLAYABLE:
+            return Piece.NON_PLAYABLE
         returnPiece = self.get_piece(x, y)
         if returnPiece == Piece.NON_PLAYABLE:
             return returnPiece
@@ -187,31 +189,34 @@ class AlternativeGrid(Grid):
 
     def get_representation(self) -> np.ndarray:
         dx, dy = self.dimensions
-        dwarves = [[1 if (x, y) in self.pieces[Piece.DWARF] else 0 for x in range(dx)] for y in range(dy)]
-        trolls = [[1 if (x, y) in self.pieces[Piece.TROLL] else 0 for x in range(dx)] for y in range(dy)]
+        dwarves = [[1 if (x, y) in self.pieces[Piece.DWARF]
+                    else 0 for x in range(dx)] for y in range(dy)]
+        trolls = [[1 if (x, y) in self.pieces[Piece.TROLL]
+                   else 0 for x in range(dx)] for y in range(dy)]
         return [dwarves, trolls]
 
     def create_start_standard_board(self):
         """ set up a standard board"""
         board = [
-            [-1, -1, -1, -1, -1, 1, 1, 0, 1, 1, -1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, 1, 0, 0, 0, 0, 0, 1, -1, -1, -1, -1],
-            [-1, -1, -1, 1, 0, 0, 0, 0, 0, 0, 0, 1, -1, -1, -1],
-            [-1, -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, -1],
-            [-1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1],
-            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            [1, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 1],
-            [0, 0, 0, 0, 0, 0, 2, -1, 2, 0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 1],
-            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            [-1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1],
-            [-1, -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, -1],
-            [-1, -1, -1, 1, 0, 0, 0, 0, 0, 0, 0, 1, -1, -1, -1],
-            [-1, -1, -1, -1, 1, 0, 0, 0, 0, 0, 1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, -1, 1, 1, 0, 1, 1, -1, -1, -1, -1, -1],
+            ['-','-','-','-','-',  1,  1,  0,  1,  1,'-','-','-','-','-'],
+            ['-','-','-','-',  1,  0,  0,  0,  0,  0,  1,'-','-','-','-'],
+            ['-','-','-',  1,  0,  0,  0,  0,  0,  0,  0,  1,'-','-','-'],
+            ['-','-',  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,'-','-'],
+            ['-',  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,'-'],
+            [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1],
+            [  1,  0,  0,  0,  0,  0, -1, -1, -1,  0,  0,  0,  0,  0,  1],
+            [  0,  0,  0,  0,  0,  0, -1,'-', -1,  0,  0,  0,  0,  0,  0],
+            [  1,  0,  0,  0,  0,  0, -1, -1, -1,  0,  0,  0,  0,  0,  1],
+            [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1],
+            ['-',  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,'-'],
+            ['-','-',  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,'-','-'],
+            ['-','-','-',  1,  0,  0,  0,  0,  0,  0,  0,  1,'-','-','-'],
+            ['-','-','-','-',  1,  0,  0,  0,  0,  0,  1,'-','-','-','-'],
+            ['-','-','-','-','-',  1,  1,  0,  1,  1,'-','-','-','-','-'],
         ]
 
-        board = list(map(lambda row: list(map(lambda s: Piece(s), row)), board))
+        board = list(map(lambda row: list(
+            map(lambda s: Piece(s), row)), board))
 
         for x, row in enumerate(board):
             for y, content in enumerate(row):
@@ -225,10 +230,10 @@ class AlternativeGrid(Grid):
             Piece.EMPTY: [],
             Piece.NON_PLAYABLE: []
         }
-        '''
+        """
         create a grid with input board 
         board = N*M array containing pieces in given location
-        '''
+        """
         self.board = template
         self.dimensions = len(template), len(template[0])
         for x, row in enumerate(self.board):
@@ -261,7 +266,8 @@ class AlternativeGrid(Grid):
         Add the relevant pieces to the dictionary
         @return the replaced piece
         """
-        if piece == Piece.NON_PLAYABLE: return Piece.NON_PLAYABLE
+        if piece == Piece.NON_PLAYABLE:
+            return Piece.NON_PLAYABLE
         returnPiece = self.get_piece(x, y)
         if returnPiece == Piece.NON_PLAYABLE:
             return returnPiece

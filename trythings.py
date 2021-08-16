@@ -1,25 +1,15 @@
 
-import time
-from proj.model.state import GameState
+import csv
 
-# state = GameState()
-
-# grid = state.grid
-
-# grid.get_representation()
-
-# state.get_representation()
+from dataclasses import replace
 
 
-state = GameState()
-starttime = time.time()
-for _ in range(10_000):
-    state.valid_actions()
-length = time.time()-starttime
-print(length)
+with open('mctsData.txt', 'r') as o:
+    lines = [[x.replace(' ','').replace('\n','') for x in line.split(',')] for line in o.readlines()]
 
+with open('results.csv', 'w', newline='') as o:
+       writer = csv.writer(o, delimiter = ',', )
+       writer.writerows(lines)
+       
+       
 
-
-
-
-    
