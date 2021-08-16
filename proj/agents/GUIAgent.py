@@ -36,8 +36,7 @@ class GUIAgent(AgentTemplate):
         """ select an action according to the gameState and return it """
 
         action = Action(None, None, set(), None)
-        state = FromLocState()
-        state.init_state(action, game_state, self.gui)
+        state = FromLocState(action, game_state, self.gui)
         event = None
         turn_over = False
         while not turn_over:

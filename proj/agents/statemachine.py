@@ -5,6 +5,9 @@ import pygame as pg
 from setuptools.namespaces import flatten
 
 class State:
+    def __init__(self, action, game_state, gui) -> None:
+        self.init_state(action, game_state, gui)
+    
     def act_on_event(self, action, game_state, gui, event) -> 'tuple[Action, State]':
         """
         Select an action as this state
@@ -28,8 +31,7 @@ class FromLocState(State):
         x, y = gui.get_coordinates(mouse_position)
         if game_state.grid.get_piece(x, y) == game_state.turn:
             action.from_loc = x, y
-            state =  ToLocState()
-            state.init_state(action, game_state, gui)
+            state =  ToLocState(action, game_state, gui)
         return action, state
         
     def init_state(self, action, game_state, gui):
@@ -50,8 +52,7 @@ class ToLocState(State):
         x, y = gui.get_coordinates(mouse_position)
         if (fx, fy) == (x, y):
             action.from_loc = None
-            state = FromLocState()
-            state.init_state(action, game_state, gui)
+            state = FromLocState(action, game_state, gui)
         elif (x, y) in [p.to_loc for p in acceptable_moves]:
             action.to_loc = x, y
             equiv_action = list(
@@ -59,8 +60,7 @@ class ToLocState(State):
             action.movetype = equiv_action[0].movetype
             if action.movetype == MoveType.DWARF_HURL:
                 action.capture.add((x, y))
-            state = CaptureListState()
-            state.init_state(action, game_state, gui)
+            state = CaptureListState(action, game_state, gui)
         return action, state
     
         
@@ -78,31 +78,26 @@ class CaptureListState(State):
     def act_on_event(self, action, game_state, gui, event):
         state = self
         if event.type == pg.KEYDOWN and event.key == K_RETURN:
-            state = CompleteState()
-            state.init_state(action, game_state, gui)
+            state = CompleteState(action, game_state, gui)
             return action, state
         if event.type != pg.MOUSEBUTTONUP and event.type:
             return action, state
         mouse_position = pg.mouse.get_pos()
         if gui.ok_button_click(mouse_position):
-            state = CompleteState()
-            state.init_state(action, game_state, gui)
+            state = CompleteState(action, game_state, gui)
         else:
             x, y = gui.get_coordinates(mouse_position)
             if (x, y) == action.from_loc:
                 action.from_loc = action.to_loc = None
                 action.capture = set()
-                state = FromLocState()
-                state.init_state(action, game_state, gui)
+                state = FromLocState(action, game_state, gui)
             elif (x, y) == action.to_loc:
                 action.to_loc = None
                 action.capture = set()
-                state = ToLocState()
-                state.init_state(action, game_state, gui)
+                state = ToLocState(action, game_state, gui)
             elif (x, y) in action.capture:
                 action.capture.remove((x, y))
-                state = CaptureListState()
-                state.init_state(action, game_state, gui)
+                state = CaptureListState(action, game_state, gui)
             else:
                 full_capture_set = set(action.capture)
                 full_capture_set.add((x, y))
@@ -112,8 +107,7 @@ class CaptureListState(State):
                     action.capture = full_capture_set
                 elif {(x, y)} in all_sets:
                     action.capture = {(x, y)}
-                state = CaptureListState()
-                state.init_state(action, game_state, gui)
+                state = CaptureListState(action, game_state, gui)
         return action, state
         
     def init_state(self, action, game_state, gui):
