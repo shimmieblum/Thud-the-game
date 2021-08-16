@@ -40,8 +40,6 @@ def play_match(total_games, player1, player2, ui: UserInterfaceTemplate, game_le
     dwarf_player = player1
     troll_player = player2
     for game_number in range(1, total_games + 1):
-        if ui.quit:
-            break
         __play_game(dwarf_player=dwarf_player, troll_player=troll_player, 
                     ui=ui, game_length=game_length, game_number=game_number, 
                     total_games=total_games, wins=wins,  
@@ -78,7 +76,6 @@ def __play_game(dwarf_player, troll_player, ui: UserInterfaceTemplate,
     # play game alternatinde players until no more turns remain
     while not state.game_over():
         start_time = time.time()
-        piece = state.turn
         ui.begin_turn(state=state, turn_number=state.turn_number,
                       game_length=game_length, game_number=game_number,
                       best_of=total_games, wins=wins, dwarf_player=dwarf_player,
