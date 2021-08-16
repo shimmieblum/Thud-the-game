@@ -212,7 +212,7 @@ class ThudGameState(GameStateTemplate):
         """
         Get all actions from a given location
         @param x
-        @param ym
+        @param y
         """
         if self.grid.get_piece(x, y) == Piece.DWARF:
             return self.__get_dwarf_actions_from_loc(x, y)
