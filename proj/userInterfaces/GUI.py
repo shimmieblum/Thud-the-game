@@ -1,6 +1,4 @@
 import enum
-import sys
-from proj.agents.gameTree import Tree
 
 import pygame as pg
 from pygame.constants import KEYDOWN, K_KP_ENTER, K_RETURN, QUIT

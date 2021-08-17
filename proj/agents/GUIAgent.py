@@ -1,12 +1,10 @@
-from proj.agents.statemachine import CompleteState, FromLocState
+from proj.agents.helper_files.statemachine import CompleteState, FromLocState
 import pygame as pg
 import sys
 import enum
-from pygame.constants import K_RETURN
-from setuptools.namespaces import flatten
 
 
-from proj.gameEngine.state import Action, GameStateTemplate, MoveType
+from proj.gameEngine.state import Action, GameStateTemplate
 from .template import AgentTemplate
 from ..userInterfaces.GUI import GUI
 

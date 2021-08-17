@@ -4,7 +4,7 @@ from optparse import OptionParser
 import time
 from typing import Callable
 import random
-from proj.agents.gameTreeNode import GameTreeNode
+from proj.agents.helper_files.gameTreeNode import GameTreeNode
 from dataclasses import dataclass
 
 from proj.agents.template import AgentTemplate

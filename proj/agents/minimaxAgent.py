@@ -1,6 +1,6 @@
 
 from proj.prog.matchStats import MatchStats
-from proj.agents.gameTreeNode import GameTreeNode
+from proj.agents.helper_files. gameTreeNode import GameTreeNode
 from typing import Generator
 from proj.gameEngine.enums import Piece
 from proj.gameEngine.state import Action, GameStateTemplate
