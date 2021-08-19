@@ -33,7 +33,7 @@ def CLI():
                       help='quiet setting will minimise board displays from the terminal UI ')
     parser.add_option('-p', '--parameters', dest='parameters', type=str, default='',
                       help=("Add parameters for agents. agent 1 using '1: x=1 ...' & agent 2 using '2: y=2 ... '. Seperate agents with ';'."
-                            + " Seperate parameters with ','. Please note: only numbers can be input with this option"))
+                            + " Seperate parameters with ','. Please note: only numbers or strings can be input with this option"))
     options, other = parser.parse_args()
     if len(other) != 0:
         raise Exception(f"""CLI can't understand {str(other)}""")
@@ -140,5 +140,8 @@ def string_to_kwargs(string):
         name,p = tuple(param.split('='))
         name = name.strip()
         p = p.strip()
-        kwargs[name] = float(p)
+        try:
+            kwargs[name] = float(p)
+        except ValueError as e:
+            kwargs[name] = p
     return kwargs

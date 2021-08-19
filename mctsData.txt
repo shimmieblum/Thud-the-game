@@ -445,3 +445,4 @@ iterations, total search time, simulation time
 667, 10.01, 8.67
 59, 10.08, 9.96
 61, 10.13, 9.91
+60, 10.13, 10.01

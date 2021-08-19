@@ -51,26 +51,6 @@ class MiniMaxABAgent(AgentTemplate):
         return action
 
 
-# class Node:
-#     def __init__(self, value_fn, action, state: GameStateTemplate
-#                  , depth) -> None:
-#         self.value_fn = value_fn
-#         self.action = action
-#         self.state = state
-#         self.depth = depth
-#         self.__children = self.state.get_subsequent_states()
-
-#     def get_children(self) -> 'Generator[Node]':
-#         for state, action in self.__children:
-#             yield Node(value_fn=self.value_fn, action=action, state=state, depth=self.depth+1)
-
-#     def get_val(self) -> float:
-#         return self.value_fn(self.state)
-
-#     def is_terminal(self) -> bool:
-#         return self.state.game_over()
-
-
 class MiniMaxSearch:
     def __init__(self, value_fn, state, max_depth, max_time,
                  optimisation, display_process=False) -> None:
@@ -94,7 +74,7 @@ class MiniMaxSearch:
         self.display_process = display_process
         self.ab_pruning = 'AlphaBeta' in optimisation
 
-    def get_best_action(self, ) -> Action:
+    def get_best_action(self) -> Action:
         self.nodes_visited = 0
         self.pruned = 0
         self.start = time.time()

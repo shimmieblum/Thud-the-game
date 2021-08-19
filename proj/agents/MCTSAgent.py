@@ -9,8 +9,7 @@ from dataclasses import dataclass
 
 from proj.agents.template import AgentTemplate
 from proj.gameEngine.state import Action, GameStateTemplate, ThudGameState
-
-
+import traceback
 
 class MCTS:
     """
@@ -23,7 +22,7 @@ class MCTS:
     4) BACK-PROPOGATE: back propogate the results up the tree
     """
 
-    def __init__(self, max_time, simulation_policy: Callable[[GameStateTemplate], GameStateTemplate], UCB_CONSTANT, max_depth=math.inf) -> None:
+    def __init__(self, save_file_path, max_time, simulation_policy: Callable[[GameStateTemplate], GameStateTemplate], UCB_CONSTANT, max_depth=math.inf) -> None:
         """
         @param max_time: maximum time allowed per simulation
         @param max_depth: maximum depth to be sampled
@@ -31,6 +30,7 @@ class MCTS:
         as an argument and returning the next state
         @param UCB_CONSTANT: constant in the UCB calculation
         """
+        self.save_file_path = save_file_path
         self.max_time = max_time
         self.max_depth = max_depth
         self.simulation_policy = simulation_policy
@@ -67,7 +67,7 @@ class MCTS:
         return self.stats.iterations
 
     def traverse(self, node):
-        while node.is_fully_expanded and node.depth < self.max_depth + self.depth_offset:
+        while node.is_fully_expanded and node.depth < self.max_depth + self.depth_offset and not node.is_terminal():
             node = self.best_child(node)
 
         return self.select_unvisited(node) if len(node.unvisited_actions) > 0 else node
@@ -103,11 +103,11 @@ class MCTS:
             return max(root.children, key=lambda child: child.n)
 
     def save_stats_to_file(self):
-        with open('mctsData.txt', 'a') as o:
-            o.write('\n'+repr(self.stats))
-
-
-
+        try: 
+            with open(self.save_file_path, 'a') as o:
+                o.write('\n'+repr(self.stats))
+        except FileNotFoundError as e:
+            print (traceback.print_exc())
 
 @dataclass(init=False)
 class SearchStats:
@@ -122,22 +122,19 @@ class SearchStats:
         self.simulation_time += simulation_time
         self.best_depth_reached = max(depth, self.best_depth_reached)
         self.total_search_time += search_time
-    
-        
+
     def __repr__(self) -> str:
         return ', '.join((
-                str(self.iterations),
-                str(round(self.total_search_time,2)),
-                str(round(self.simulation_time,2))
-                ))
-
-
+            str(self.iterations),
+            str(round(self.total_search_time, 2)),
+            str(round(self.simulation_time, 2))
+        ))
 
 
 class MCTSAgentTemplate(AgentTemplate):
-    def __init__(self, name, agentClassName, max_time=10, max_depth=math.inf) -> None:
+    def __init__(self, name, agentClassName, save_file_path='results.txt', max_time=10, max_depth=math.inf) -> None:
         super().__init__(name, agentClassName)
-        self.MCTS = MCTS(max_time=max_time, max_depth=max_depth,
+        self.MCTS = MCTS(save_file_path=save_file_path, max_time=max_time, max_depth=max_depth,
                          simulation_policy=self.simulation_policy, UCB_CONSTANT=2)
         self.root = None
 
@@ -154,7 +151,8 @@ class MCTSAgentTemplate(AgentTemplate):
         # this can be improved by saving the root as a class variable
         # and finding the new node each time an action is taken
         # if self.root == None:
-        self.root = GameTreeNode(state=state, action=None, depth=0, parent=None)
+        self.root = GameTreeNode(
+            state=state, action=None, depth=0, parent=None)
         best_child = self.MCTS.search(self.root)
         nodes_searched = self.MCTS.nodes_searched
         stats.update_stats(self.name, add_nodes=nodes_searched)
@@ -163,8 +161,8 @@ class MCTSAgentTemplate(AgentTemplate):
 
 
 class MCTSRandAgent(MCTSAgentTemplate):
-    def __init__(self, name, agentClassName, max_time=10, max_depth=math.inf) -> None:
-        super().__init__(name, agentClassName, max_time=max_time, max_depth=max_depth)
+    def __init__(self, name, agentClassName, save_file_path='results.txt', max_time=10, max_depth=math.inf) -> None:
+        super().__init__(name, agentClassName, save_file_path, max_time=max_time, max_depth=max_depth)
 
     def simulation_policy(self, state: GameStateTemplate) -> GameStateTemplate:
         while not state.game_over():
@@ -174,10 +172,10 @@ class MCTSRandAgent(MCTSAgentTemplate):
 
 
 class MCTSUnequalAgent(MCTSAgentTemplate):
-    def __init__(self, name, agentClassName, max_time=10, max_depth=math.inf) -> None:
-        super().__init__(name, agentClassName, max_time=max_time, max_depth=max_depth)
+    def __init__(self, name, agentClassName, save_file_path='results.txt', max_time=10, max_depth=math.inf) -> None:
+        super().__init__(name, agentClassName, save_file_path, max_time=max_time, max_depth=max_depth)
 
-    def simulation_policy(self, state: GameStateTemplate) -> Action:
+    def simulation_policy(self, state: GameStateTemplate) -> GameStateTemplate:
         while not state.game_over():
             actions = []
             while(actions == []):
